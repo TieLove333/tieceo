@@ -105,10 +105,10 @@ export default function Home() {
         <div className="text-center mb-24 mt-16">
           <TieLogo className="mx-auto mb-6 w-32 h-32" />
           <h1 className="hero-title">
-            Transformative Innovation Engine
+            Building A Solo $1B SAAS
           </h1>
           <p className="hero-description">
-            Pioneering the future of technology through collaborative innovation and strategic development.
+          Building it in public and sharing it all here.
           </p>
         </div>
 
