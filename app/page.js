@@ -1,52 +1,72 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import TieLogo from './components/TieLogo';
 import Footer from './components/Footer';
 
 // Matrix-like background component
 const MatrixBackground = () => {
-  const [characters, setCharacters] = useState([]);
-
+  const canvasRef = useRef(null);
+  
   useEffect(() => {
-    const generateCharacters = () => {
-      const cols = Math.floor(window.innerWidth / 15);
-      const newCharacters = Array(cols).fill().map(() => ({
-        x: Math.random() * window.innerWidth,
-        y: -50,
-        speed: Math.random() * 3 + 1,
-        char: String.fromCharCode(0x30A0 + Math.random() * 96)
-      }));
-      setCharacters(newCharacters);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    const fontSize = 14;
+    const columns = Math.floor(canvas.width / fontSize);
+    const drops = Array(columns).fill(1);
+    
+    // Characters to display
+    const chars = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン";
+    
+    function draw() {
+      // Semi-transparent black to create fade effect
+      ctx.fillStyle = 'rgba(248, 250, 252, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.fillStyle = 'rgba(0, 255, 70, 0.3)';
+      ctx.font = `${fontSize}px monospace`;
+      
+      for (let i = 0; i < drops.length; i++) {
+        // Random character
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        
+        // x = i * fontSize, y = drops[i] * fontSize
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        
+        // Randomly reset the drop position to top
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        
+        // Move drops down
+        drops[i]++;
+      }
+    }
+    
+    const interval = setInterval(draw, 33);
+    
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     };
-
-    generateCharacters();
-    window.addEventListener('resize', generateCharacters);
-    return () => window.removeEventListener('resize', generateCharacters);
+    
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
-
-  const animateCharacters = () => {
-    return characters.map((char, index) => (
-      <span 
-        key={index} 
-        style={{
-          position: 'absolute',
-          left: char.x,
-          top: char.y,
-          color: 'rgba(0, 255, 70, 0.3)',
-          fontSize: '12px',
-          userSelect: 'none',
-          pointerEvents: 'none'
-        }}
-      >
-        {char.char}
-      </span>
-    ));
-  };
-
+  
   return (
-    <div 
+    <canvas
+      ref={canvasRef}
       style={{
         position: 'fixed',
         top: 0,
@@ -54,12 +74,9 @@ const MatrixBackground = () => {
         width: '100%',
         height: '100%',
         zIndex: -1,
-        overflow: 'hidden',
         pointerEvents: 'none'
       }}
-    >
-      {animateCharacters()}
-    </div>
+    />
   );
 };
 
@@ -116,7 +133,7 @@ export default function Home() {
           ))}
         </div>
       </main>
-      <Footer />
+      {/* Only include one Footer component */}
     </div>
   );
 } 
