@@ -40,7 +40,7 @@ export default function Home() {
         <div className="feature-card">
           <h3 className="feature-title">AI-Powered</h3>
           <p className="feature-description">
-            See how I'm using AI to build and scale faster than ever.
+            See how I&apos;m using AI to build and scale faster than ever.
           </p>
         </div>
       </div>
