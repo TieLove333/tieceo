@@ -9,11 +9,7 @@ export default function UpdatesList() {
   useEffect(() => {
     async function fetchUpdates() {
       try {
-        // Try both API routes
-        let response = await fetch('/api/updates');
-        if (!response.ok) {
-          response = await fetch('/api/updates/route');
-        }
+        const response = await fetch('/api/updates/route');
         
         if (response.ok) {
           const data = await response.json();

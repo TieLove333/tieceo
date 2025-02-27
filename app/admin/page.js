@@ -35,8 +35,7 @@ export default function AdminPage() {
     setIsSubmitting(true);
     
     try {
-      // Try both API routes
-      let response = await fetch('/api/updates', {
+      const response = await fetch('/api/updates/route', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -47,20 +46,6 @@ export default function AdminPage() {
           date: new Date().toISOString(),
         }),
       });
-      
-      if (!response.ok) {
-        response = await fetch('/api/updates/route', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            title,
-            content,
-            date: new Date().toISOString(),
-          }),
-        });
-      }
       
       if (response.ok) {
         setTitle('');
