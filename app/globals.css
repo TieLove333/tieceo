@@ -363,7 +363,7 @@ body {
   font-size: 0.8rem;
 }
 
-/* Tasks Page Styles */
+/* Tasks Page Styles - Updated */
 .tasks-page {
   max-width: 1400px;
   margin: 0 auto;
@@ -372,7 +372,7 @@ body {
 
 .tasks-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 .tasks-header h1 {
@@ -388,13 +388,44 @@ body {
   color: #666;
 }
 
+.tasks-section {
+  margin-bottom: 4rem;
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.section-header {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #eaeaea;
+  padding-bottom: 1rem;
+}
+
+.section-header h2 {
+  font-size: 1.8rem;
+  color: #0070f3;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.section-header p {
+  color: #666;
+  margin-top: 0.5rem;
+}
+
 .tasks-embed {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  background: #f9f9f9;
+}
+
+.tie-tasks {
+  border-top: 5px solid #0070f3;
+}
+
+.capsole-tasks {
+  border-top: 5px solid #00c6ff;
 }
 
 /* Capsole Page Styles */
