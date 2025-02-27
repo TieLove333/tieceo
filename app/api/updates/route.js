@@ -4,11 +4,17 @@ import path from 'path';
 
 export async function POST(request) {
   try {
+    // Log the entire request for debugging
+    console.log('Received request body:', await request.text());
+
     const data = await request.json();
     const { title, content, date } = data;
     
     if (!title || !content) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Missing required fields' }, 
+        { status: 400 }
+      );
     }
     
     // Use a public directory that's writable in production
@@ -28,20 +34,27 @@ export async function POST(request) {
     }
     
     // Add new update
-    updates.unshift({
+    const newUpdate = {
       id: Date.now().toString(),
       title,
       content,
       date,
-    });
+    };
+    updates.unshift(newUpdate);
     
     // Write updates back to file
     fs.writeFileSync(updatesFilePath, JSON.stringify(updates, null, 2));
     
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ 
+      success: true, 
+      update: newUpdate 
+    });
   } catch (error) {
     console.error('Error saving update:', error);
-    return NextResponse.json({ error: 'Failed to save update: ' + error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to save update: ' + error.message }, 
+      { status: 500 }
+    );
   }
 }
 

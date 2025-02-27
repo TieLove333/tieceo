@@ -47,16 +47,31 @@ export default function AdminPage() {
         }),
       });
       
+      // Log the response for debugging
+      const responseText = await response.text();
+      console.log('Response text:', responseText);
+      
+      // Parse the response manually
+      let responseData;
+      try {
+        responseData = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Failed to parse response:', parseError);
+        setMessage('Failed to parse server response');
+        setIsSubmitting(false);
+        return;
+      }
+      
       if (response.ok) {
         setTitle('');
         setContent('');
         setMessage('Update published successfully!');
         router.refresh();
       } else {
-        const errorData = await response.json();
-        setMessage('Failed to publish update: ' + (errorData.error || ''));
+        setMessage(responseData.error || 'Failed to publish update');
       }
     } catch (error) {
+      console.error('Submission error:', error);
       setMessage('Error: ' + error.message);
     } finally {
       setIsSubmitting(false);
