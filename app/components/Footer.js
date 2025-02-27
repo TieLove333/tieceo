@@ -1,4 +1,5 @@
 import TieLogo from './TieLogo'
+import Link from 'next/link'
 
 export default function Footer() {
   return (
@@ -9,6 +10,9 @@ export default function Footer() {
         </div>
         <div className="footer-copyright">
           © {new Date().getFullYear()} Tie.ceo
+          <span className="footer-admin-link">
+            <Link href="/admin">Admin</Link>
+          </span>
         </div>
       </div>
     </footer>
