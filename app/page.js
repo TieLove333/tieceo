@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import TieLogo from './components/TieLogo';
-import Footer from './components/Footer';
 
 // Matrix-like background component
 const MatrixBackground = () => {
@@ -133,7 +132,6 @@ export default function Home() {
           ))}
         </div>
       </main>
-      {/* Only include one Footer component */}
     </div>
   );
 } 
