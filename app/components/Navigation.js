@@ -24,7 +24,7 @@ export default function Navigation() {
               Capsole
             </a>
             <a 
-              href="https://x.com/your_handle" 
+              href="https://x.com/tielove333" 
               target="_blank" 
               rel="noopener noreferrer"
             >
@@ -33,7 +33,7 @@ export default function Navigation() {
               </svg>
             </a>
             <a 
-              href="https://twitter.com/your_handle" 
+              href="https://x.com/tielove333" 
               className="cta-button"
             >
               Get Updates
