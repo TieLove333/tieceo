@@ -87,14 +87,14 @@ export default function Home() {
       link: '/updates'
     },
     {
+      title: 'Revenue Tracker',
+      description: 'Monitor financial goals and track business performance.',
+      link: '/revenue'
+    },
+    {
       title: 'Tasks',
       description: 'Track ongoing projects and upcoming milestones.',
       link: '/tasks'
-    },
-    {
-      title: 'Admin',
-      description: 'Manage and publish site content.',
-      link: '/admin'
     }
   ];
 
@@ -102,14 +102,13 @@ export default function Home() {
     <div className="min-h-screen flex flex-col">
       <MatrixBackground />
       <main className="flex-grow container mx-auto px-4 py-16 relative z-10">
-        <div className="text-center mb-16">
+        <div className="text-center mb-24 mt-16">
           <TieLogo className="mx-auto mb-6 w-32 h-32" />
           <h1 className="hero-title">
-            TIE Project Dashboard
+            Transformative Innovation Engine
           </h1>
           <p className="hero-description">
-            A comprehensive platform for tracking progress, managing tasks, 
-            and sharing updates on our innovative technology initiatives.
+            Pioneering the future of technology through collaborative innovation and strategic development.
           </p>
         </div>
 
