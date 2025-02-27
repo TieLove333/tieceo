@@ -1,16 +1,11 @@
-import Image from 'next/image'
+import TieLogo from './TieLogo'
 
 export default function Footer() {
   return (
     <footer className="footer">
       <div className="footer-content">
         <div className="footer-logo">
-          <Image 
-            src="/t-logo.png" 
-            alt="T Logo" 
-            width={30} 
-            height={30}
-          />
+          <TieLogo />
         </div>
         <div className="footer-copyright">
           © {new Date().getFullYear()} Tie.ceo
