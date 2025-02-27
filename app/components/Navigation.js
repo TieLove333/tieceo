@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function Navigation() {
   return (
     <nav className="bg-white border-b border-gray-200">
@@ -6,20 +8,20 @@ export default function Navigation() {
           <div className="flex">
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center">
-              <a href="/" className="text-xl font-bold text-blue-600">
+              <Link href="/" className="text-xl font-bold text-blue-600">
                 tie.ceo
-              </a>
+              </Link>
             </div>
           </div>
 
           {/* Navigation Links */}
           <div className="hidden sm:flex sm:items-center">
-            <a href="/updates" className="px-3 py-2 text-gray-700 hover:text-blue-600">
+            <Link href="/updates" className="px-3 py-2 text-gray-700 hover:text-blue-600">
               Updates
-            </a>
-            <a href="/revenue" className="px-3 py-2 text-gray-700 hover:text-blue-600">
+            </Link>
+            <Link href="/revenue" className="px-3 py-2 text-gray-700 hover:text-blue-600">
               Revenue
-            </a>
+            </Link>
             <a 
               href="https://twitter.com/your_handle" 
               target="_blank" 
