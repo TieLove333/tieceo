@@ -1,53 +1,47 @@
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div className="text-center">
-          <h1 className="text-5xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-            Building a $1B SaaS Company
-            <span className="block text-blue-600">with AI as a Solo Founder</span>
-          </h1>
-          
-          <p className="mt-6 text-lg leading-8 text-gray-600">
-            Follow my journey building in public. Live revenue, daily updates, and complete transparency
-            as I leverage AI to scale from $0 to $1B.
-          </p>
+    <main>
+      <section className="hero-section">
+        <h1 className="hero-title">
+          Building a $1B SaaS Company
+          <span className="hero-subtitle">with AI as a Solo Founder</span>
+        </h1>
+        
+        <p className="hero-description">
+          Follow my journey building in public. Live revenue, daily updates, and complete transparency
+          as I leverage AI to scale from $0 to $1B.
+        </p>
 
-          <div className="mt-10 flex items-center justify-center gap-x-6">
-            <a
-              href="#updates"
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-500 transition duration-300"
-            >
-              View Progress
-            </a>
-            <a href="#revenue" className="text-sm font-semibold leading-6 text-gray-900">
-              Live Revenue <span aria-hidden="true">→</span>
-            </a>
-          </div>
+        <div>
+          <a href="#updates" className="cta-button">
+            View Progress
+          </a>
+          <a href="#revenue" style={{ marginLeft: '1rem', fontWeight: '600', color: '#111827' }}>
+            Live Revenue <span>→</span>
+          </a>
         </div>
+      </section>
 
-        <div className="mt-20 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Feature Cards */}
-          <div className="rounded-lg border border-gray-200 p-6 bg-white shadow-md hover:shadow-lg transition duration-300">
-            <h3 className="text-lg font-semibold text-gray-900">Daily Updates</h3>
-            <p className="mt-2 text-gray-600">
-              Follow my builder journey with daily logs and technical deep-dives.
-            </p>
-          </div>
-          
-          <div className="rounded-lg border border-gray-200 p-6 bg-white shadow-md hover:shadow-lg transition duration-300">
-            <h3 className="text-lg font-semibold text-gray-900">Live Revenue</h3>
-            <p className="mt-2 text-gray-600">
-              Watch the revenue grow in real-time with Stripe integration.
-            </p>
-          </div>
-          
-          <div className="rounded-lg border border-gray-200 p-6 bg-white shadow-md hover:shadow-lg transition duration-300">
-            <h3 className="text-lg font-semibold text-gray-900">AI-Powered</h3>
-            <p className="mt-2 text-gray-600">
-              See how I&apos;m using AI to build and scale faster than ever.
-            </p>
-          </div>
+      <div className="feature-cards">
+        <div className="feature-card">
+          <h3 className="feature-title">Daily Updates</h3>
+          <p className="feature-description">
+            Follow my builder journey with daily logs and technical deep-dives.
+          </p>
+        </div>
+        
+        <div className="feature-card">
+          <h3 className="feature-title">Live Revenue</h3>
+          <p className="feature-description">
+            Watch the revenue grow in real-time with Stripe integration.
+          </p>
+        </div>
+        
+        <div className="feature-card">
+          <h3 className="feature-title">AI-Powered</h3>
+          <p className="feature-description">
+            See how I'm using AI to build and scale faster than ever.
+          </p>
         </div>
       </div>
     </main>
