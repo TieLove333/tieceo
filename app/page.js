@@ -45,7 +45,7 @@ export default function Home() {
           <div className="rounded-lg border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900">AI-Powered</h3>
             <p className="mt-2 text-gray-600">
-              See how I'm using AI to build and scale faster than ever.
+              See how I&apos;m using AI to build and scale faster than ever.
             </p>
           </div>
         </div>
