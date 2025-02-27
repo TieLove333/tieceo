@@ -12,7 +12,17 @@ export default function Tasks() {
           <p>Building a transparent founder journey</p>
         </div>
         <div className="tasks-embed">
-        <iframe class="clickup-embed" src="https://sharing.clickup.com/1273965/b/h/6-901109632967-2/8ba012e1fcd2031" onwheel="" width="100%" height="700px" style="background: transparent; border: 1px solid #ccc;"></iframe>
+          <iframe 
+            className="clickup-embed" 
+            src="https://sharing.clickup.com/1273965/b/h/6-901109632967-2/8ba012e1fcd2031" 
+            width="100%" 
+            height="700px" 
+            style={{ 
+              background: 'transparent', 
+              border: '1px solid #ccc'
+            }}
+            title="Tie.ceo Tasks"
+          />
         </div>
       </section>
       
@@ -28,7 +38,8 @@ export default function Tasks() {
             height="800px" 
             frameBorder="0"
             title="Capsole.io Tasks"
-          ></iframe>
+            style={{ background: 'transparent' }}
+          />
         </div>
       </section>
     </main>
