@@ -47,16 +47,19 @@ export default function AdminPage() {
         }),
       });
       
-      // Log the response for debugging
+      console.log('Response status:', response.status);
+      
+      // Always try to get response text, even for non-OK responses
       const responseText = await response.text();
-      console.log('Response text:', responseText);
+      console.log('Full response text:', responseText);
       
       // Parse the response manually
       let responseData;
       try {
-        responseData = JSON.parse(responseText);
+        responseData = responseText ? JSON.parse(responseText) : {};
       } catch (parseError) {
         console.error('Failed to parse response:', parseError);
+        console.error('Unparseable response text:', responseText);
         setMessage('Failed to parse server response');
         setIsSubmitting(false);
         return;
@@ -68,11 +71,14 @@ export default function AdminPage() {
         setMessage('Update published successfully!');
         router.refresh();
       } else {
-        setMessage(responseData.error || 'Failed to publish update');
+        // Use more detailed error reporting
+        const errorMessage = responseData.error || responseData.details || 'Failed to publish update';
+        setMessage(errorMessage);
+        console.error('Update submission error:', responseData);
       }
     } catch (error) {
-      console.error('Submission error:', error);
-      setMessage('Error: ' + error.message);
+      console.error('Submission network error:', error);
+      setMessage('Network error: ' + error.message);
     } finally {
       setIsSubmitting(false);
     }
