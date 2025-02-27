@@ -21,7 +21,7 @@ const MatrixBackground = () => {
     const drops = Array(columns).fill(1);
     
     // Characters to display
-    const chars = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン";
+    const chars = "01000010 00000000 01110101 00000000 01101001 00000000 01101100 00000000 01100100 00000000 00100000 00000000 01100110 00000000 01101111 00000000 01110010 00000000 01100101 00000000 01110110 00000000 01100101 00000000 01110010 00000000 00100000 00000000 01100010 00000000 01110101 00000000 01101001 00000000 01101100 00000000 01100100 00000000 00100000 00000000";
     
     function draw() {
       // Semi-transparent black to create fade effect
@@ -102,13 +102,13 @@ export default function Home() {
     <div className="min-h-screen flex flex-col">
       <MatrixBackground />
       <main className="flex-grow container mx-auto px-4 py-16 relative z-10">
-        <div className="text-center mb-24 mt-16">
-          <TieLogo className="mx-auto mb-6 w-32 h-32" />
-          <h1 className="hero-title">
+        <div className="text-center min-h-[60vh] flex flex-col justify-center items-center">
+          <TieLogo className="mx-auto mb-12 w-32 h-32" />
+          <h1 className="hero-title mb-8">
             Building A Solo $1B SAAS
           </h1>
-          <p className="hero-description">
-          Building it in public and sharing it all here.
+          <p className="hero-description mb-16">
+            Building it in public and sharing it all here.
           </p>
         </div>
 
