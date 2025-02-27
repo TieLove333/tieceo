@@ -1,11 +1,15 @@
 import Link from 'next/link'
+import TieLogo from './TieLogo'
 
 export default function Navigation() {
   return (
     <nav className="nav-container">
       <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div className="logo">
-          <Link href="/">tie.ceo</Link>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <TieLogo />
+            <span>tie.ceo</span>
+          </Link>
         </div>
 
         <div className="nav-links">
