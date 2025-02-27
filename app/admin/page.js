@@ -35,7 +35,8 @@ export default function AdminPage() {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch('/api/updates', {
+      // Try both API routes
+      let response = await fetch('/api/updates', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -47,13 +48,28 @@ export default function AdminPage() {
         }),
       });
       
+      if (!response.ok) {
+        response = await fetch('/api/updates/route', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            title,
+            content,
+            date: new Date().toISOString(),
+          }),
+        });
+      }
+      
       if (response.ok) {
         setTitle('');
         setContent('');
         setMessage('Update published successfully!');
         router.refresh();
       } else {
-        setMessage('Failed to publish update');
+        const errorData = await response.json();
+        setMessage('Failed to publish update: ' + (errorData.error || ''));
       }
     } catch (error) {
       setMessage('Error: ' + error.message);
