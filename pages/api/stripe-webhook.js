@@ -8,8 +8,7 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-  const stripe = new Stripe(process.env.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
-    , {
+  const stripe = new Stripe(process.env.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, {
     apiVersion: '2023-08-16'
   });
 
@@ -31,12 +30,12 @@ export default async function handler(req, res) {
 
     switch (event.type) {
       case 'payment_intent.succeeded':
-        const paymentIntent = event.data.object;
-        // Handle successful payment
+        // Explicitly log or use the paymentIntent to satisfy ESLint
+        console.log('Payment Intent Succeeded', event.data.object);
         break;
       case 'customer.subscription.created':
-        const subscription = event.data.object;
-        // Handle new subscription
+        // Explicitly log or use the subscription to satisfy ESLint
+        console.log('Subscription Created', event.data.object);
         break;
       // Add more event types as needed
       default:
