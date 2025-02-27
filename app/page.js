@@ -84,20 +84,17 @@ export default function Home() {
     {
       title: 'Updates',
       description: 'Stay informed about the latest progress and developments.',
-      link: '/updates',
-      icon: '📝'
+      link: '/updates'
     },
     {
       title: 'Tasks',
       description: 'Track ongoing projects and upcoming milestones.',
-      link: '/tasks',
-      icon: '✅'
+      link: '/tasks'
     },
     {
       title: 'Admin',
       description: 'Manage and publish site content.',
-      link: '/admin',
-      icon: '🔐'
+      link: '/admin'
     }
   ];
 
@@ -107,28 +104,26 @@ export default function Home() {
       <main className="flex-grow container mx-auto px-4 py-16 relative z-10">
         <div className="text-center mb-16">
           <TieLogo className="mx-auto mb-6 w-32 h-32" />
-          <h1 className="text-5xl font-bold mb-4 text-primary-foreground">
+          <h1 className="hero-title">
             TIE Project Dashboard
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="hero-description">
             A comprehensive platform for tracking progress, managing tasks, 
             and sharing updates on our innovative technology initiatives.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="feature-cards">
           {sections.map((section) => (
-            <Link 
-              key={section.title} 
-              href={section.link}
-              className="block transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
-            >
-              <div className="bg-card p-6 rounded-xl shadow-md text-center hover:bg-accent/10 border border-border">
-                <div className="text-6xl mb-4">{section.icon}</div>
-                <h2 className="text-2xl font-semibold mb-2">{section.title}</h2>
-                <p className="text-muted-foreground">{section.description}</p>
+            <div key={section.title} className="feature-card">
+              <h2 className="feature-title">{section.title}</h2>
+              <p className="feature-description">{section.description}</p>
+              <div className="mt-6">
+                <Link href={section.link} className="cta-button">
+                  View {section.title}
+                </Link>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       </main>
