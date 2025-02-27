@@ -28,7 +28,9 @@ body {
   font-size: 1.5rem;
   font-weight: 700;
   color: #0070f3;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: Space Grotesk, sans-serif;
+  margin-top: 2px;
+  margin-bottom: -10px;
 }
 
 .logo a {
@@ -594,7 +596,7 @@ body {
 }
 
 .nav-container.header {
-  max-width: 1400px;
+  width: 1400px;
   margin: 20px auto;
   border-radius: 12px;
   background-color: white;
