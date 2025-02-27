@@ -176,13 +176,20 @@ body {
 .footer-content {
   display: flex;
   justify-content: space-between;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   flex-wrap: wrap;
 }
 
 .footer-logo {
+  display: flex;
+  align-items: center;
   margin-bottom: 2rem;
+}
+
+.footer-logo svg {
+  width: 40px;
+  height: 40px;
 }
 
 .footer-logo span {
@@ -352,4 +359,229 @@ body {
   padding: 0.25rem 0.5rem;
   border-radius: 12px;
   font-size: 0.8rem;
+}
+
+/* Tasks Page Styles */
+.tasks-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.tasks-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.tasks-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 1rem;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.tasks-header p {
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.tasks-embed {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* Capsole Page Styles */
+.capsole-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.capsole-hero {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.capsole-hero h1 {
+  font-size: 3rem;
+  color: #0070f3;
+  margin-bottom: 1rem;
+}
+
+.capsole-features {
+  margin-bottom: 4rem;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.feature-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 112, 243, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+}
+
+.capsole-cta {
+  display: flex;
+  justify-content: center;
+}
+
+/* Revenue Page Styles */
+.revenue-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.revenue-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.revenue-header h1 {
+  font-size: 2.5rem;
+  color: #0070f3;
+  margin-bottom: 0.5rem;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.revenue-header p {
+  font-size: 1rem;
+  color: #666;
+}
+
+.goal-progress {
+  margin-bottom: 2rem;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 40px;
+  background-color: #e0e0e0;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #0070f3, #00c6ff);
+  position: relative;
+  animation: pulse 2s infinite;
+}
+
+.progress-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: rgba(255,255,255,0.5);
+  transform: skew(-45deg);
+}
+
+.progress-marker:nth-child(1) { left: 20%; }
+.progress-marker:nth-child(2) { left: 40%; }
+.progress-marker:nth-child(3) { left: 60%; }
+.progress-marker:nth-child(4) { left: 80%; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.goal-details {
+  display: flex;
+  justify-content: space-between;
+  color: #666;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.metric-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 112, 243, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-10px);
+}
+
+.metric-value {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #0070f3;
+  margin: 1rem 0;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.metric-trend {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.trend-icon {
+  font-weight: bold;
+}
+
+.trend-percentage {
+  color: #666;
+}
+
+.revenue-goals {
+  margin-bottom: 3rem;
+}
+
+.revenue-breakdown {
+  margin-bottom: 3rem;
+}
+
+.breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.breakdown-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.breakdown-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0070f3;
+  margin-top: 1rem;
+  font-family: 'Space Grotesk', sans-serif;
 } 
