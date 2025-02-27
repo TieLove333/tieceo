@@ -8,24 +8,18 @@ export default function Tasks() {
       
       <section className="tasks-section tie-tasks">
         <div className="section-header">
-          <h2>Tie.ceo Tasks</h2>
+          <h2>tie.ceo Tasks</h2>
           <p>Building a transparent founder journey</p>
         </div>
         <div className="tasks-embed">
-          <iframe 
-            src="https://app.clickup.com/9009157067/v/l/li/901100359409" 
-            width="100%" 
-            height="800px" 
-            frameBorder="0"
-            title="Tie.ceo Tasks"
-          ></iframe>
+        <iframe class="clickup-embed" src="https://sharing.clickup.com/1273965/b/h/6-901109632967-2/8ba012e1fcd2031" onwheel="" width="100%" height="700px" style="background: transparent; border: 1px solid #ccc;"></iframe>
         </div>
       </section>
       
       <section className="tasks-section capsole-tasks">
         <div className="section-header">
           <h2>Capsole.io Tasks</h2>
-          <p>Building the future of content creation</p>
+          <p>Building the future - Moonshot platform.</p>
         </div>
         <div className="tasks-embed">
           <iframe 
