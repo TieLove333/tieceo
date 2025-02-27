@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function Footer() {
   return (
     <footer className="footer">
@@ -10,9 +12,9 @@ export default function Footer() {
         <div className="footer-links">
           <div className="footer-section">
             <h4>Pages</h4>
-            <a href="/">Home</a>
-            <a href="/updates">Updates</a>
-            <a href="/revenue">Revenue</a>
+            <Link href="/">Home</Link>
+            <Link href="/updates">Updates</Link>
+            <Link href="/revenue">Revenue</Link>
           </div>
           
           <div className="footer-section">
