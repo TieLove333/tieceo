@@ -1,17 +1,20 @@
-import { Suspense } from 'react';
 import UpdatesList from './UpdatesList';
+import UpdateForm from './UpdateForm';
+
+export const metadata = {
+  title: 'Updates - TIE CEO',
+  description: 'Latest updates and announcements from TIE CEO',
+};
 
 export default function Updates() {
   return (
-    <main className="updates-page">
-      <section className="updates-header">
-        <h1>Founder Updates</h1>
-        <p>Follow my journey building in public</p>
-      </section>
-      
-      <Suspense fallback={<div className="loading">Loading updates...</div>}>
+    <main className="container">
+      <h1>Updates</h1>
+      <UpdateForm />
+      <div className="updates-section">
+        <h2>Recent Updates</h2>
         <UpdatesList />
-      </Suspense>
+      </div>
     </main>
   );
 } 

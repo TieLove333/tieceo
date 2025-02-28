@@ -1,49 +1,47 @@
 import { createClient } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
-// In-memory storage for updates (will reset on each deployment)
-let updates = [];
-
-export async function POST(request) {
-  try {
-    const data = await request.json();
-    const { title, content, date } = data;
-    
-    const client = createClient();
-    await client.connect();
-    
-    // Insert into Blog table instead of updates
-    const result = await client.sql`
-      INSERT INTO Blog (title, content, created_at)
-      VALUES (${title}, ${content}, ${date})
-      RETURNING *;
-    `;
-    
-    await client.end();
-    return NextResponse.json({ success: true, post: result.rows[0] });
-  } catch (error) {
-    console.error('Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-}
+export const runtime = 'edge';
 
 export async function GET() {
   try {
     const client = createClient();
-    await client.connect();
     
-    // Query the Blog table
     const result = await client.sql`
-      SELECT * FROM Blog 
-      ORDER BY created_at DESC 
-      LIMIT 50;
+      SELECT * FROM updates 
+      ORDER BY created_at DESC;
     `;
     
-    await client.end();
-    
-    return NextResponse.json(result.rows);
+    return NextResponse.json({ updates: result.rows });
   } catch (error) {
-    console.error('Error fetching posts:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Error fetching updates:', error);
+    return NextResponse.json({ error: 'Failed to fetch updates' }, { status: 500 });
+  }
+}
+
+export async function POST(request) {
+  try {
+    const client = createClient();
+    const data = await request.json();
+    
+    // Validate the data
+    if (!data.title || !data.content) {
+      return NextResponse.json({ error: 'Title and content are required' }, { status: 400 });
+    }
+    
+    // Insert into database
+    const result = await client.sql`
+      INSERT INTO updates (title, content, created_at)
+      VALUES (${data.title}, ${data.content}, NOW())
+      RETURNING *;
+    `;
+    
+    return NextResponse.json({ 
+      success: true, 
+      update: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Error creating update:', error);
+    return NextResponse.json({ error: 'Failed to create update' }, { status: 500 });
   }
 } 

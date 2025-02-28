@@ -1,66 +1,49 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import styles from './Updates.module.css';
 
 export default function UpdatesList() {
   const [updates, setUpdates] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     async function fetchUpdates() {
       try {
-        const response = await fetch('/api/updates/route');
-        
-        if (response.ok) {
-          const data = await response.json();
-          setUpdates(data);
-        } else {
-          console.error('Failed to fetch updates');
+        const response = await fetch('/api/updates');
+        if (!response.ok) {
+          throw new Error('Failed to fetch updates');
         }
-      } catch (error) {
-        console.error('Error fetching updates:', error);
-      } finally {
+        const data = await response.json();
+        setUpdates(data.updates || []);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching updates:', err);
+        setError('Failed to load updates. Please try again later.');
         setLoading(false);
       }
     }
-    
+
     fetchUpdates();
   }, []);
-  
-  if (loading) {
-    return <div className="loading">Loading updates...</div>;
-  }
-  
-  if (updates.length === 0) {
-    return (
-      <section className="empty-updates">
-        <div className="empty-state">
-          <h3>No updates yet</h3>
-          <p>Check back soon for the latest updates on tie.ceo and Capsole.io</p>
-        </div>
-      </section>
-    );
-  }
-  
+
+  if (loading) return <div>Loading updates...</div>;
+  if (error) return <div className="error">{error}</div>;
+
   return (
-    <section className="updates-list">
-      {updates.map((update) => (
-        <div key={update.id} className="update-card">
-          <div className="update-date">
-            {new Date(update.created_at).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })}
+    <div className="updates-container">
+      {updates.length === 0 ? (
+        <p>No updates available yet.</p>
+      ) : (
+        updates.map((update) => (
+          <div key={update.id} className="update-item">
+            <h3>{update.title}</h3>
+            <p className="date">{new Date(update.created_at).toLocaleDateString()}</p>
+            <div className="content">{update.content}</div>
           </div>
-          <h2 className="update-title">{update.title}</h2>
-          <div className="update-content">
-            {update.content.split('\n').map((paragraph, i) => (
-              <p key={i}>{paragraph}</p>
-            ))}
-          </div>
-        </div>
-      ))}
-    </section>
+        ))
+      )}
+    </div>
   );
 } 

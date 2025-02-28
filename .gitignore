@@ -40,3 +40,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 pages/api/updates.js
+.env*.local
+
+# Environment variables
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
