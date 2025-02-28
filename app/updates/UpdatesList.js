@@ -14,42 +14,85 @@ export default function UpdatesList() {
 
   // First check database connection
   useEffect(() => {
-    async function checkDatabase() {
+    checkDatabase();
+  }, []);
+
+  const checkDatabase = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // First try to fetch updates directly
+      await fetchUpdates();
+    } catch (err) {
+      console.error('Initial fetch failed, trying database check:', err);
+      
       try {
-        const response = await fetch('/api/db-test');
+        // If direct fetch fails, try the db-test endpoint
+        const response = await fetch('/api/db-test', {
+          // Add cache control to prevent caching
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        });
+        
         if (!response.ok) {
-          throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+          if (response.status === 504) {
+            throw new Error('Database connection timed out. This usually means the database is not properly configured or is unreachable.');
+          } else {
+            throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+          }
         }
         
         const data = await response.json();
         setDbStatus(data);
         
         if (data.success && data.updatesTableExists) {
-          fetchUpdates();
+          // Try fetching updates again
+          await fetchUpdates();
         } else {
           // Try to set up the database
           await setupDatabase();
         }
-      } catch (err) {
-        console.error('Database check error:', err);
-        setError('Failed to check database: ' + err.message);
+      } catch (dbErr) {
+        console.error('Database check error:', dbErr);
+        
+        // Provide helpful error message for common issues
+        if (dbErr.message.includes('timed out') || dbErr.message.includes('504')) {
+          setError('Database connection timed out. Please check your Vercel Postgres configuration in the Vercel dashboard.');
+        } else if (dbErr.message.includes('ENOTFOUND') || dbErr.message.includes('ECONNREFUSED')) {
+          setError('Database server not found. Please check your database host configuration.');
+        } else {
+          setError('Failed to check database: ' + dbErr.message);
+        }
+        
         setLoading(false);
       }
     }
-    
-    checkDatabase();
-  }, []);
+  };
 
   const setupDatabase = async () => {
     try {
-      const response = await fetch('/api/setup-db');
+      const response = await fetch('/api/setup-db', {
+        // Add cache control to prevent caching
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      
       if (!response.ok) {
-        throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+        if (response.status === 504) {
+          throw new Error('Database setup timed out. This usually means the database is not properly configured or is unreachable.');
+        } else {
+          throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+        }
       }
       
       const data = await response.json();
       if (data.success) {
-        fetchUpdates();
+        await fetchUpdates();
       } else {
         setError('Failed to set up database: ' + (data.error || 'Unknown error'));
         setLoading(false);
@@ -63,9 +106,20 @@ export default function UpdatesList() {
 
   const fetchUpdates = async () => {
     try {
-      const response = await fetch('/api/updates');
+      const response = await fetch('/api/updates', {
+        // Add cache control to prevent caching
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      
       if (!response.ok) {
-        throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+        if (response.status === 504) {
+          throw new Error('Request timed out. This usually means the database query is taking too long.');
+        } else {
+          throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+        }
       }
       
       const data = await response.json();
@@ -78,7 +132,7 @@ export default function UpdatesList() {
       }
     } catch (err) {
       console.error('Error fetching updates:', err);
-      setError('Failed to load updates: ' + err.message);
+      throw err; // Re-throw to be handled by the caller
     } finally {
       setLoading(false);
     }
@@ -100,12 +154,18 @@ export default function UpdatesList() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
         },
         body: JSON.stringify(newUpdate),
       });
       
       if (!response.ok) {
-        throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+        if (response.status === 504) {
+          throw new Error('Request timed out. This usually means the database connection is slow or unavailable.');
+        } else {
+          throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+        }
       }
       
       const data = await response.json();
@@ -113,7 +173,9 @@ export default function UpdatesList() {
       if (data.success) {
         setNewUpdate({ title: '', content: '' });
         setSubmitSuccess(true);
-        fetchUpdates();
+        fetchUpdates().catch(err => {
+          console.error('Error refreshing updates after submit:', err);
+        });
       } else {
         setSubmitError(data.error || 'Failed to submit update');
       }
@@ -142,19 +204,41 @@ export default function UpdatesList() {
       
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <p className="font-bold">Error:</p>
           <p>{error}</p>
+          
+          {error.includes('timed out') && (
+            <div className="mt-2 text-sm">
+              <p className="font-semibold">Troubleshooting Steps:</p>
+              <ol className="list-decimal ml-5 mt-1">
+                <li>Check your Vercel Postgres configuration in the Vercel dashboard</li>
+                <li>Ensure your IP is allowed in the database firewall settings</li>
+                <li>Verify that your database is running and accessible</li>
+                <li>Check for any Vercel service outages</li>
+              </ol>
+            </div>
+          )}
+          
           {dbStatus && (
             <div className="mt-2 text-sm">
-              <p>Database Status:</p>
+              <p className="font-semibold">Database Status:</p>
               <pre className="bg-gray-100 p-2 rounded mt-1 overflow-auto text-xs">
                 {JSON.stringify(dbStatus, null, 2)}
               </pre>
             </div>
           )}
-          <div className="mt-2">
+          
+          <div className="mt-4 flex space-x-2">
+            <button 
+              onClick={checkDatabase}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded text-sm"
+            >
+              Retry Connection
+            </button>
+            
             <button 
               onClick={setupDatabase}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded text-sm"
+              className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded text-sm"
             >
               Setup Database
             </button>
@@ -213,7 +297,7 @@ export default function UpdatesList() {
       
       <div className="mb-4">
         <button 
-          onClick={fetchUpdates}
+          onClick={() => fetchUpdates().catch(err => setError('Failed to refresh updates: ' + err.message))}
           className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded"
         >
           Refresh Updates
