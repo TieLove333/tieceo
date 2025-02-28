@@ -2,6 +2,7 @@ import { createClient } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // Ensure we're using Node.js runtime, not Edge
 
 export async function GET() {
   try {
@@ -21,11 +22,20 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Error fetching updates:', error);
-    return NextResponse.json({ 
-      success: false,
-      error: 'Failed to fetch updates',
-      details: error.message
-    }, { status: 500 });
+    // Ensure we're returning a proper JSON response
+    return new NextResponse(
+      JSON.stringify({ 
+        success: false,
+        error: 'Failed to fetch updates',
+        details: error.message
+      }), 
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
   }
 }
 
@@ -61,10 +71,19 @@ export async function POST(request) {
     });
   } catch (error) {
     console.error('Error creating update:', error);
-    return NextResponse.json({ 
-      success: false,
-      error: 'Failed to create update',
-      details: error.message
-    }, { status: 500 });
+    // Ensure we're returning a proper JSON response
+    return new NextResponse(
+      JSON.stringify({ 
+        success: false,
+        error: 'Failed to create update',
+        details: error.message
+      }), 
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
   }
 } 

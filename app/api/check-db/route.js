@@ -3,18 +3,19 @@ import { NextResponse } from 'next/server';
 
 // Add this line to disable static generation
 export const dynamic = 'force-dynamic';
-
-// Remove the edge runtime directive if present
-// export const runtime = 'edge';
+export const runtime = 'nodejs'; // Ensure we're using Node.js runtime, not Edge
 
 export async function GET() {
   try {
+    console.log('GET /api/check-db: Connecting to database...');
     // Create a client
     const client = createClient();
     
+    console.log('GET /api/check-db: Testing connection...');
     // Test the connection
     const result = await client.sql`SELECT NOW() as current_time;`;
     
+    console.log('GET /api/check-db: Checking if updates table exists...');
     // Check if the updates table exists
     const tableCheck = await client.sql`
       SELECT EXISTS (
@@ -26,6 +27,7 @@ export async function GET() {
     
     const tableExists = tableCheck.rows[0].table_exists;
     
+    console.log(`GET /api/check-db: Updates table exists: ${tableExists}`);
     // Return connection info
     return NextResponse.json({
       success: true,
@@ -41,11 +43,20 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Database connection error:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to connect to database',
-      errorMessage: error.message,
-      errorStack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
-    }, { status: 500 });
+    // Ensure we're returning a proper JSON response
+    return new NextResponse(
+      JSON.stringify({
+        success: false,
+        error: 'Failed to connect to database',
+        errorMessage: error.message,
+        errorStack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+      }), 
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
   }
 } 
