@@ -5,10 +5,12 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    console.log('GET /api/setup-db: Connecting to database...');
-    const client = createClient();
+    // Create a direct connection to the database
+    const client = createClient({
+      connectionTimeoutMillis: 5000 // 5 second connection timeout
+    });
     
-    console.log('GET /api/setup-db: Creating updates table...');
+    // Create the updates table if it doesn't exist
     await client.sql`
       CREATE TABLE IF NOT EXISTS updates (
         id SERIAL PRIMARY KEY,
@@ -18,35 +20,31 @@ export async function GET() {
       );
     `;
     
-    console.log('GET /api/setup-db: Checking if table is empty...');
+    // Check if the table has any records
     const countResult = await client.sql`SELECT COUNT(*) FROM updates;`;
     const count = parseInt(countResult.rows[0].count);
     
-    let testRecordInserted = false;
-    
+    // Insert a sample record if the table is empty
     if (count === 0) {
-      console.log('GET /api/setup-db: Table is empty, inserting test record...');
       await client.sql`
         INSERT INTO updates (title, content, created_at)
         VALUES ('Welcome to TIE CEO', 'This is the first update on our journey to build a $1B SaaS company!', NOW());
       `;
-      testRecordInserted = true;
     }
     
-    console.log('GET /api/setup-db: Setup completed successfully');
+    // Return success
     return NextResponse.json({ 
       success: true, 
       message: 'Database setup completed successfully',
-      tableCreated: true,
-      testRecordInserted: testRecordInserted,
-      recordCount: count
+      recordCount: count,
+      sampleRecordAdded: count === 0
     });
   } catch (error) {
-    console.error('Error setting up database:', error);
+    console.error('Database setup error:', error);
     return NextResponse.json({ 
       success: false,
-      error: 'Failed to set up database', 
-      details: error.message
+      error: error.message,
+      stack: error.stack
     }, { status: 500 });
   }
 } 

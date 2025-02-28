@@ -2,72 +2,72 @@ import { createClient } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs'; // Ensure we're using Node.js runtime, not Edge
-export const maxDuration = 10; // Set maximum duration to 10 seconds
 
 export async function GET() {
   try {
-    console.log('GET /api/updates: Connecting to database...');
-    const client = createClient();
+    // Create a direct connection to the database
+    const client = createClient({
+      connectionTimeoutMillis: 5000, // 5 second connection timeout
+      query_timeout: 10000 // 10 second query timeout
+    });
     
-    console.log('GET /api/updates: Fetching updates...');
+    // Simple query to test connection
     const result = await client.sql`
-      SELECT id, title, content, created_at 
-      FROM updates 
+      SELECT * FROM updates 
       ORDER BY created_at DESC
-      LIMIT 20;
+      LIMIT 10;
     `;
     
-    console.log(`GET /api/updates: Found ${result.rows.length} updates`);
+    // Return the results
     return NextResponse.json({ 
       success: true,
       updates: result.rows 
     });
   } catch (error) {
-    console.error('Error fetching updates:', error);
+    console.error('Database error:', error);
     return NextResponse.json({ 
       success: false,
-      error: 'Failed to fetch updates',
-      details: error.message
+      error: error.message
     }, { status: 500 });
   }
 }
 
 export async function POST(request) {
   try {
-    console.log('POST /api/updates: Connecting to database...');
-    const client = createClient();
+    // Parse the request body
+    const { title, content } = await request.json();
     
-    console.log('POST /api/updates: Parsing request body...');
-    const data = await request.json();
-    
-    // Validate the data
-    if (!data.title || !data.content) {
-      console.log('POST /api/updates: Validation failed - missing title or content');
+    // Validate input
+    if (!title || !content) {
       return NextResponse.json({ 
         success: false,
         error: 'Title and content are required' 
       }, { status: 400 });
     }
     
-    console.log('POST /api/updates: Inserting new update...');
+    // Create a direct connection to the database
+    const client = createClient({
+      connectionTimeoutMillis: 5000, // 5 second connection timeout
+      query_timeout: 10000 // 10 second query timeout
+    });
+    
+    // Insert the update
     const result = await client.sql`
       INSERT INTO updates (title, content, created_at)
-      VALUES (${data.title}, ${data.content}, NOW())
-      RETURNING id, title, content, created_at;
+      VALUES (${title}, ${content}, NOW())
+      RETURNING *;
     `;
     
-    console.log('POST /api/updates: Update created successfully');
+    // Return success
     return NextResponse.json({ 
       success: true, 
       update: result.rows[0]
     });
   } catch (error) {
-    console.error('Error creating update:', error);
+    console.error('Database error:', error);
     return NextResponse.json({ 
       success: false,
-      error: 'Failed to create update',
-      details: error.message
+      error: error.message
     }, { status: 500 });
   }
 } 
