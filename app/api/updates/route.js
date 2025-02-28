@@ -3,17 +3,30 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs'; // Ensure we're using Node.js runtime, not Edge
+export const maxDuration = 10; // Set maximum duration to 10 seconds
 
 export async function GET() {
+  let client;
   try {
     console.log('GET /api/updates: Connecting to database...');
-    const client = createClient();
+    client = createClient();
     
     console.log('GET /api/updates: Fetching updates...');
-    const result = await client.sql`
-      SELECT * FROM updates 
-      ORDER BY created_at DESC;
-    `;
+    // Use a timeout promise to prevent hanging
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Database query timed out after 8 seconds')), 8000);
+    });
+    
+    // Race the database query against the timeout
+    const result = await Promise.race([
+      client.sql`
+        SELECT id, title, content, created_at 
+        FROM updates 
+        ORDER BY created_at DESC
+        LIMIT 20;
+      `,
+      timeoutPromise
+    ]);
     
     console.log(`GET /api/updates: Found ${result.rows.length} updates`);
     return NextResponse.json({ 
@@ -36,13 +49,23 @@ export async function GET() {
         }
       }
     );
+  } finally {
+    // Close the client connection if it exists
+    if (client && typeof client.end === 'function') {
+      try {
+        await client.end();
+      } catch (e) {
+        console.error('Error closing database connection:', e);
+      }
+    }
   }
 }
 
 export async function POST(request) {
+  let client;
   try {
     console.log('POST /api/updates: Connecting to database...');
-    const client = createClient();
+    client = createClient();
     
     console.log('POST /api/updates: Parsing request body...');
     const data = await request.json();
@@ -57,12 +80,20 @@ export async function POST(request) {
     }
     
     console.log('POST /api/updates: Inserting new update...');
-    // Insert into database
-    const result = await client.sql`
-      INSERT INTO updates (title, content, created_at)
-      VALUES (${data.title}, ${data.content}, NOW())
-      RETURNING *;
-    `;
+    // Use a timeout promise to prevent hanging
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Database query timed out after 8 seconds')), 8000);
+    });
+    
+    // Race the database query against the timeout
+    const result = await Promise.race([
+      client.sql`
+        INSERT INTO updates (title, content, created_at)
+        VALUES (${data.title}, ${data.content}, NOW())
+        RETURNING id, title, content, created_at;
+      `,
+      timeoutPromise
+    ]);
     
     console.log('POST /api/updates: Update created successfully');
     return NextResponse.json({ 
@@ -85,5 +116,14 @@ export async function POST(request) {
         }
       }
     );
+  } finally {
+    // Close the client connection if it exists
+    if (client && typeof client.end === 'function') {
+      try {
+        await client.end();
+      } catch (e) {
+        console.error('Error closing database connection:', e);
+      }
+    }
   }
 } 
