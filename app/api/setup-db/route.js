@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import * as db from '../../lib/db';
 
 export const dynamic = 'force-dynamic';
@@ -43,7 +42,7 @@ export async function GET() {
       }
     };
     
-    return new NextResponse(JSON.stringify(responseData), {
+    return new Response(JSON.stringify(responseData), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
@@ -65,7 +64,7 @@ export async function GET() {
       }
     };
     
-    return new NextResponse(JSON.stringify(errorResponse), {
+    return new Response(JSON.stringify(errorResponse), {
       status: 500,
       headers: {
         'Content-Type': 'application/json',

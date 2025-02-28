@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import * as db from '../../lib/db';
 
 export const dynamic = 'force-dynamic';
@@ -22,7 +21,7 @@ export async function GET() {
       updates: updates
     };
     
-    return new NextResponse(JSON.stringify(responseData), {
+    return new Response(JSON.stringify(responseData), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
@@ -40,7 +39,7 @@ export async function GET() {
       stack: error.stack
     };
     
-    return new NextResponse(JSON.stringify(errorResponse), {
+    return new Response(JSON.stringify(errorResponse), {
       status: 500,
       headers: {
         'Content-Type': 'application/json',
@@ -65,7 +64,7 @@ export async function POST(request) {
         error: 'Title and content are required'
       };
       
-      return new NextResponse(JSON.stringify(validationError), {
+      return new Response(JSON.stringify(validationError), {
         status: 400,
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +84,7 @@ export async function POST(request) {
       update: update
     };
     
-    return new NextResponse(JSON.stringify(successResponse), {
+    return new Response(JSON.stringify(successResponse), {
       status: 201,
       headers: {
         'Content-Type': 'application/json',
@@ -103,7 +102,7 @@ export async function POST(request) {
       stack: error.stack
     };
     
-    return new NextResponse(JSON.stringify(errorResponse), {
+    return new Response(JSON.stringify(errorResponse), {
       status: 500,
       headers: {
         'Content-Type': 'application/json',
