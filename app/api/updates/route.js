@@ -6,27 +6,17 @@ export const runtime = 'nodejs'; // Ensure we're using Node.js runtime, not Edge
 export const maxDuration = 10; // Set maximum duration to 10 seconds
 
 export async function GET() {
-  let client;
   try {
     console.log('GET /api/updates: Connecting to database...');
-    client = createClient();
+    const client = createClient();
     
     console.log('GET /api/updates: Fetching updates...');
-    // Use a timeout promise to prevent hanging
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Database query timed out after 8 seconds')), 8000);
-    });
-    
-    // Race the database query against the timeout
-    const result = await Promise.race([
-      client.sql`
-        SELECT id, title, content, created_at 
-        FROM updates 
-        ORDER BY created_at DESC
-        LIMIT 20;
-      `,
-      timeoutPromise
-    ]);
+    const result = await client.sql`
+      SELECT id, title, content, created_at 
+      FROM updates 
+      ORDER BY created_at DESC
+      LIMIT 20;
+    `;
     
     console.log(`GET /api/updates: Found ${result.rows.length} updates`);
     return NextResponse.json({ 
@@ -35,37 +25,18 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Error fetching updates:', error);
-    // Ensure we're returning a proper JSON response
-    return new NextResponse(
-      JSON.stringify({ 
-        success: false,
-        error: 'Failed to fetch updates',
-        details: error.message
-      }), 
-      { 
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-  } finally {
-    // Close the client connection if it exists
-    if (client && typeof client.end === 'function') {
-      try {
-        await client.end();
-      } catch (e) {
-        console.error('Error closing database connection:', e);
-      }
-    }
+    return NextResponse.json({ 
+      success: false,
+      error: 'Failed to fetch updates',
+      details: error.message
+    }, { status: 500 });
   }
 }
 
 export async function POST(request) {
-  let client;
   try {
     console.log('POST /api/updates: Connecting to database...');
-    client = createClient();
+    const client = createClient();
     
     console.log('POST /api/updates: Parsing request body...');
     const data = await request.json();
@@ -80,20 +51,11 @@ export async function POST(request) {
     }
     
     console.log('POST /api/updates: Inserting new update...');
-    // Use a timeout promise to prevent hanging
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Database query timed out after 8 seconds')), 8000);
-    });
-    
-    // Race the database query against the timeout
-    const result = await Promise.race([
-      client.sql`
-        INSERT INTO updates (title, content, created_at)
-        VALUES (${data.title}, ${data.content}, NOW())
-        RETURNING id, title, content, created_at;
-      `,
-      timeoutPromise
-    ]);
+    const result = await client.sql`
+      INSERT INTO updates (title, content, created_at)
+      VALUES (${data.title}, ${data.content}, NOW())
+      RETURNING id, title, content, created_at;
+    `;
     
     console.log('POST /api/updates: Update created successfully');
     return NextResponse.json({ 
@@ -102,28 +64,10 @@ export async function POST(request) {
     });
   } catch (error) {
     console.error('Error creating update:', error);
-    // Ensure we're returning a proper JSON response
-    return new NextResponse(
-      JSON.stringify({ 
-        success: false,
-        error: 'Failed to create update',
-        details: error.message
-      }), 
-      { 
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-  } finally {
-    // Close the client connection if it exists
-    if (client && typeof client.end === 'function') {
-      try {
-        await client.end();
-      } catch (e) {
-        console.error('Error closing database connection:', e);
-      }
-    }
+    return NextResponse.json({ 
+      success: false,
+      error: 'Failed to create update',
+      details: error.message
+    }, { status: 500 });
   }
 } 
