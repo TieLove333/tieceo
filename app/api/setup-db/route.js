@@ -4,9 +4,11 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
+  let client = null;
+  
   try {
     // Create a direct connection to the database
-    const client = createClient({
+    client = createClient({
       connectionTimeoutMillis: 5000 // 5 second connection timeout
     });
     
@@ -33,18 +35,34 @@ export async function GET() {
     }
     
     // Return success
-    return NextResponse.json({ 
+    return new NextResponse(JSON.stringify({ 
       success: true, 
       message: 'Database setup completed successfully',
       recordCount: count,
       sampleRecordAdded: count === 0
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
     console.error('Database setup error:', error);
-    return NextResponse.json({ 
+    
+    return new NextResponse(JSON.stringify({ 
       success: false,
       error: error.message,
       stack: error.stack
-    }, { status: 500 });
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } finally {
+    // Ensure client is released
+    if (client) {
+      try {
+        await client.end();
+      } catch (e) {
+        console.error('Error closing database connection:', e);
+      }
+    }
   }
 } 

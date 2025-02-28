@@ -4,9 +4,11 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
+  let client = null;
+  
   try {
-    // Create a direct connection to the database
-    const client = createClient({
+    // Create a direct connection to the database with explicit timeout
+    client = createClient({
       connectionTimeoutMillis: 5000 // 5 second connection timeout
     });
     
@@ -25,7 +27,7 @@ export async function GET() {
     const tableExists = tableCheck.rows[0].table_exists;
     
     // Return connection info and environment variables for debugging
-    return NextResponse.json({
+    return new NextResponse(JSON.stringify({
       success: true,
       time: result.rows[0].time,
       updatesTableExists: tableExists,
@@ -36,13 +38,29 @@ export async function GET() {
         POSTGRES_USER: process.env.POSTGRES_USER ? 'Set' : 'Not set',
         POSTGRES_PASSWORD: process.env.POSTGRES_PASSWORD ? 'Set' : 'Not set'
       }
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
     console.error('Database test error:', error);
-    return NextResponse.json({
+    
+    return new NextResponse(JSON.stringify({
       success: false,
       error: error.message,
       stack: error.stack
-    }, { status: 500 });
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } finally {
+    // Ensure client is released
+    if (client) {
+      try {
+        await client.end();
+      } catch (e) {
+        console.error('Error closing database connection:', e);
+      }
+    }
   }
 } 

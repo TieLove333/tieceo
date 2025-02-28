@@ -4,9 +4,11 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
+  let client = null;
+  
   try {
     // Create a direct connection to the database
-    const client = createClient({
+    client = createClient({
       connectionTimeoutMillis: 5000, // 5 second connection timeout
       query_timeout: 10000 // 10 second query timeout
     });
@@ -19,34 +21,55 @@ export async function GET() {
     `;
     
     // Return the results
-    return NextResponse.json({ 
+    return new NextResponse(JSON.stringify({ 
       success: true,
       updates: result.rows 
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
     console.error('Database error:', error);
-    return NextResponse.json({ 
+    
+    return new NextResponse(JSON.stringify({ 
       success: false,
       error: error.message
-    }, { status: 500 });
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } finally {
+    // Ensure client is released
+    if (client) {
+      try {
+        await client.end();
+      } catch (e) {
+        console.error('Error closing database connection:', e);
+      }
+    }
   }
 }
 
 export async function POST(request) {
+  let client = null;
+  
   try {
     // Parse the request body
     const { title, content } = await request.json();
     
     // Validate input
     if (!title || !content) {
-      return NextResponse.json({ 
+      return new NextResponse(JSON.stringify({ 
         success: false,
         error: 'Title and content are required' 
-      }, { status: 400 });
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
     
     // Create a direct connection to the database
-    const client = createClient({
+    client = createClient({
       connectionTimeoutMillis: 5000, // 5 second connection timeout
       query_timeout: 10000 // 10 second query timeout
     });
@@ -59,15 +82,31 @@ export async function POST(request) {
     `;
     
     // Return success
-    return NextResponse.json({ 
+    return new NextResponse(JSON.stringify({ 
       success: true, 
       update: result.rows[0]
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
     console.error('Database error:', error);
-    return NextResponse.json({ 
+    
+    return new NextResponse(JSON.stringify({ 
       success: false,
       error: error.message
-    }, { status: 500 });
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } finally {
+    // Ensure client is released
+    if (client) {
+      try {
+        await client.end();
+      } catch (e) {
+        console.error('Error closing database connection:', e);
+      }
+    }
   }
 } 
