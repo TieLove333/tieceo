@@ -8,13 +8,17 @@ export default function UpdateForm({ onUpdateAdded }) {
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
+    setSuccess(false);
 
     try {
+      console.log('Submitting update:', { title, content });
+      
       const response = await fetch('/api/updates', {
         method: 'POST',
         headers: {
@@ -23,16 +27,20 @@ export default function UpdateForm({ onUpdateAdded }) {
         body: JSON.stringify({ title, content }),
       });
 
+      console.log('Response status:', response.status);
+      
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to create update');
       }
 
       const data = await response.json();
+      console.log('Response data:', data);
       
       // Reset form
       setTitle('');
       setContent('');
+      setSuccess(true);
       
       // Notify parent component
       if (onUpdateAdded) {
@@ -50,6 +58,7 @@ export default function UpdateForm({ onUpdateAdded }) {
     <div className="update-form-container">
       <h2>Post a New Update</h2>
       {error && <div className="error">{error}</div>}
+      {success && <div className="success">Update posted successfully!</div>}
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="title">Title</label>
