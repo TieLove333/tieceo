@@ -46,7 +46,7 @@ export async function GET() {
     console.log(`DB-TEST: Updates table exists: ${tableExists}`);
     
     // Return connection info and environment variables for debugging
-    return new NextResponse(JSON.stringify({
+    return NextResponse.json({
       success: true,
       time: result.rows[0].time,
       updatesTableExists: tableExists,
@@ -62,10 +62,9 @@ export async function GET() {
         nodeVersion: process.version,
         environment: process.env.NODE_ENV || 'development'
       }
-    }), {
+    }, {
       status: 200,
       headers: { 
-        'Content-Type': 'application/json',
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0'
@@ -79,7 +78,7 @@ export async function GET() {
                       error.code === 'ETIMEDOUT' || 
                       error.code === 'ESOCKETTIMEDOUT';
     
-    return new NextResponse(JSON.stringify({
+    return NextResponse.json({
       success: false,
       error: error.message,
       errorType: isTimeout ? 'timeout' : 'connection',
@@ -89,10 +88,9 @@ export async function GET() {
         nodeVersion: process.version,
         environment: process.env.NODE_ENV || 'development'
       }
-    }), {
+    }, {
       status: isTimeout ? 504 : 500,
       headers: { 
-        'Content-Type': 'application/json',
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0'
