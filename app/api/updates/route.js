@@ -1,172 +1,114 @@
-import { createClient } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
+import * as db from '../../lib/db';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 10; // Set maximum duration to 10 seconds
 
+// Override Node.js TLS rejection for development
+// Note: This is not recommended for production, but works for development
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 export async function GET() {
-  let client = null;
+  console.log('UPDATES-API: Starting database connection');
   
   try {
-    console.log('UPDATES-API: Starting database connection');
+    // Get updates from the database
+    const updates = await db.getUpdates(10);
+    console.log(`UPDATES-API: Found ${updates.length} updates`);
     
-    // Create a direct connection to the database
-    client = createClient({
-      connectionTimeoutMillis: 5000, // 5 second connection timeout
-      query_timeout: 10000 // 10 second query timeout
-    });
-    
-    console.log('UPDATES-API: Fetching updates');
-    
-    // Simple query to test connection
-    const result = await Promise.race([
-      client.sql`
-        SELECT * FROM updates 
-        ORDER BY created_at DESC
-        LIMIT 10;
-      `,
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Database query timed out after 8 seconds')), 8000)
-      )
-    ]);
-    
-    console.log(`UPDATES-API: Found ${result.rows.length} updates`);
-    
-    // Return the results
-    return NextResponse.json({ 
+    // Return updates as JSON
+    const responseData = {
       success: true,
-      updates: result.rows 
-    }, {
+      updates: updates
+    };
+    
+    return new NextResponse(JSON.stringify(responseData), {
       status: 200,
-      headers: { 
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, max-age=0'
       }
     });
   } catch (error) {
-    console.error('UPDATES-API ERROR:', error);
+    console.error(`UPDATES-API ERROR: ${error.message}`);
+    console.error(error.stack);
     
-    // Determine if it's a timeout error
-    const isTimeout = error.message.includes('timed out') || 
-                      error.code === 'ETIMEDOUT' || 
-                      error.code === 'ESOCKETTIMEDOUT';
-    
-    return NextResponse.json({ 
+    // Return error response
+    const errorResponse = {
       success: false,
       error: error.message,
-      errorType: isTimeout ? 'timeout' : 'database'
-    }, {
-      status: isTimeout ? 504 : 500,
-      headers: { 
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
+      stack: error.stack
+    };
+    
+    return new NextResponse(JSON.stringify(errorResponse), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, max-age=0'
       }
     });
-  } finally {
-    // Ensure client is released
-    if (client) {
-      try {
-        await client.end();
-        console.log('UPDATES-API: Database connection closed');
-      } catch (e) {
-        console.error('UPDATES-API: Error closing database connection:', e);
-      }
-    }
   }
 }
 
 export async function POST(request) {
-  let client = null;
+  console.log('UPDATES-API: Processing POST request');
   
   try {
-    console.log('UPDATES-API: Processing POST request');
-    
-    // Parse the request body
-    const { title, content } = await request.json();
+    // Parse request body
+    const body = await request.json();
+    const { title, content } = body;
     
     // Validate input
     if (!title || !content) {
-      console.log('UPDATES-API: Validation failed - missing title or content');
-      return NextResponse.json({ 
+      const validationError = {
         success: false,
-        error: 'Title and content are required' 
-      }, {
+        error: 'Title and content are required'
+      };
+      
+      return new NextResponse(JSON.stringify(validationError), {
         status: 400,
-        headers: { 
-          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store, max-age=0'
         }
       });
     }
     
-    console.log('UPDATES-API: Connecting to database for insert');
+    // Create new update
+    const update = await db.createUpdate(title, content);
+    console.log(`UPDATES-API: Created new update with ID ${update.id}`);
     
-    // Create a direct connection to the database
-    client = createClient({
-      connectionTimeoutMillis: 5000, // 5 second connection timeout
-      query_timeout: 10000 // 10 second query timeout
-    });
+    // Return success response
+    const successResponse = {
+      success: true,
+      message: 'Update created successfully',
+      update: update
+    };
     
-    console.log('UPDATES-API: Inserting new update');
-    
-    // Insert the update
-    const result = await Promise.race([
-      client.sql`
-        INSERT INTO updates (title, content, created_at)
-        VALUES (${title}, ${content}, NOW())
-        RETURNING *;
-      `,
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Database insert timed out after 8 seconds')), 8000)
-      )
-    ]);
-    
-    console.log('UPDATES-API: Insert successful');
-    
-    // Return success
-    return NextResponse.json({ 
-      success: true, 
-      update: result.rows[0]
-    }, {
-      status: 200,
-      headers: { 
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
+    return new NextResponse(JSON.stringify(successResponse), {
+      status: 201,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, max-age=0'
       }
     });
   } catch (error) {
-    console.error('UPDATES-API POST ERROR:', error);
+    console.error(`UPDATES-API ERROR: ${error.message}`);
+    console.error(error.stack);
     
-    // Determine if it's a timeout error
-    const isTimeout = error.message.includes('timed out') || 
-                      error.code === 'ETIMEDOUT' || 
-                      error.code === 'ESOCKETTIMEDOUT';
-    
-    return NextResponse.json({ 
+    // Return error response
+    const errorResponse = {
       success: false,
       error: error.message,
-      errorType: isTimeout ? 'timeout' : 'database'
-    }, {
-      status: isTimeout ? 504 : 500,
-      headers: { 
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
+      stack: error.stack
+    };
+    
+    return new NextResponse(JSON.stringify(errorResponse), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, max-age=0'
       }
     });
-  } finally {
-    // Ensure client is released
-    if (client) {
-      try {
-        await client.end();
-        console.log('UPDATES-API: POST database connection closed');
-      } catch (e) {
-        console.error('UPDATES-API: Error closing POST database connection:', e);
-      }
-    }
   }
 } 

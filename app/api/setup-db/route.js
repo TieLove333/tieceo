@@ -1,113 +1,76 @@
-import { createClient } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
+import * as db from '../../lib/db';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 10; // Set maximum duration to 10 seconds
 
+// Override Node.js TLS rejection for development
+// Note: This is not recommended for production, but works for development
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 export async function GET() {
-  let client = null;
+  console.log('SETUP-DB: Starting database setup process');
   
   try {
-    console.log('SETUP-DB: Starting database setup');
+    // Create updates table if it doesn't exist
+    await db.createUpdatesTable();
+    console.log('SETUP-DB: Updates table created or already exists');
     
-    // Create a direct connection to the database
-    client = createClient({
-      connectionTimeoutMillis: 5000 // 5 second connection timeout
-    });
+    // Check if there are any records
+    const count = await db.countUpdates();
+    console.log(`SETUP-DB: Found ${count} records in updates table`);
     
-    console.log('SETUP-DB: Creating updates table if not exists');
+    let sampleAdded = false;
     
-    // Create the updates table if it doesn't exist
-    await Promise.race([
-      client.sql`
-        CREATE TABLE IF NOT EXISTS updates (
-          id SERIAL PRIMARY KEY,
-          title VARCHAR(255) NOT NULL,
-          content TEXT NOT NULL,
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-        );
-      `,
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Table creation timed out after 5 seconds')), 5000)
-      )
-    ]);
-    
-    console.log('SETUP-DB: Checking for existing records');
-    
-    // Check if the table has any records
-    const countResult = await Promise.race([
-      client.sql`SELECT COUNT(*) FROM updates;`,
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Count query timed out after 5 seconds')), 5000)
-      )
-    ]);
-    
-    const count = parseInt(countResult.rows[0].count);
-    console.log(`SETUP-DB: Found ${count} existing records`);
-    
-    // Insert a sample record if the table is empty
+    // Add a sample record if the table is empty
     if (count === 0) {
-      console.log('SETUP-DB: Inserting sample record');
-      
-      await Promise.race([
-        client.sql`
-          INSERT INTO updates (title, content, created_at)
-          VALUES ('Welcome to TIE CEO', 'This is the first update on our journey to build a $1B SaaS company!', NOW());
-        `,
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Sample record insertion timed out after 5 seconds')), 5000)
-        )
-      ]);
-      
-      console.log('SETUP-DB: Sample record inserted');
+      await db.insertSampleUpdate();
+      console.log('SETUP-DB: Added sample update');
+      sampleAdded = true;
     }
     
-    console.log('SETUP-DB: Setup completed successfully');
+    console.log('SETUP-DB: Database setup completed successfully');
     
-    // Return success
-    return NextResponse.json({ 
-      success: true, 
+    // Return success response
+    const responseData = {
+      success: true,
       message: 'Database setup completed successfully',
       recordCount: count,
-      sampleRecordAdded: count === 0
-    }, {
+      sampleAdded: sampleAdded,
+      diagnostics: {
+        timestamp: new Date().toISOString(),
+        endpoint: '/api/setup-db'
+      }
+    };
+    
+    return new NextResponse(JSON.stringify(responseData), {
       status: 200,
-      headers: { 
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, max-age=0'
       }
     });
   } catch (error) {
-    console.error('SETUP-DB ERROR:', error);
+    console.error(`SETUP-DB ERROR: ${error.message}`);
+    console.error(error.stack);
     
-    // Determine if it's a timeout error
-    const isTimeout = error.message.includes('timed out') || 
-                      error.code === 'ETIMEDOUT' || 
-                      error.code === 'ESOCKETTIMEDOUT';
-    
-    return NextResponse.json({ 
+    // Return error response
+    const errorResponse = {
       success: false,
       error: error.message,
-      errorType: isTimeout ? 'timeout' : 'database',
-      stack: error.stack
-    }, {
-      status: isTimeout ? 504 : 500,
-      headers: { 
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
+      stack: error.stack,
+      diagnostics: {
+        timestamp: new Date().toISOString(),
+        endpoint: '/api/setup-db'
+      }
+    };
+    
+    return new NextResponse(JSON.stringify(errorResponse), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, max-age=0'
       }
     });
-  } finally {
-    // Ensure client is released
-    if (client) {
-      try {
-        await client.end();
-        console.log('SETUP-DB: Database connection closed');
-      } catch (e) {
-        console.error('SETUP-DB: Error closing database connection:', e);
-      }
-    }
   }
 } 
