@@ -1,3 +1,4 @@
+import { createClient } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
 // In-memory storage for updates (will reset on each deployment)
@@ -18,22 +19,22 @@ export async function POST(request) {
       );
     }
     
-    // Create new update
-    const newUpdate = {
-      id: Date.now().toString(),
-      title,
-      content,
-      date,
-    };
+    const client = createClient();
+    await client.connect();
     
-    // Add to the beginning of updates array
-    updates.unshift(newUpdate);
+    const result = await client.sql`
+      INSERT INTO updates (title, content, created_at)
+      VALUES (${title}, ${content}, ${date})
+      RETURNING *;
+    `;
     
-    console.log('Created update:', newUpdate);
+    await client.end();
+
+    console.log('Created update:', result.rows[0]);
 
     return NextResponse.json({ 
       success: true, 
-      update: newUpdate 
+      update: result.rows[0] 
     }, { 
       status: 200,
       headers: {
@@ -41,43 +42,38 @@ export async function POST(request) {
       }
     });
   } catch (error) {
-    console.error('Error in POST route:', error);
+    console.error('Error saving update:', error);
     return NextResponse.json(
-      { 
-        error: 'Failed to save update', 
-        details: error.message 
-      }, 
-      { 
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
+      { error: 'Failed to save update', details: error.message }, 
+      { status: 500 }
     );
   }
 }
 
 export async function GET() {
   try {
-    return NextResponse.json(updates, {
+    const client = createClient();
+    await client.connect();
+    
+    const result = await client.sql`
+      SELECT * FROM updates 
+      ORDER BY created_at DESC 
+      LIMIT 50;
+    `;
+    
+    await client.end();
+    
+    return NextResponse.json(result.rows, {
       status: 200,
       headers: {
         'Content-Type': 'application/json'
       }
     });
   } catch (error) {
-    console.error('Error in GET route:', error);
+    console.error('Error fetching updates:', error);
     return NextResponse.json(
-      { 
-        error: 'Failed to read updates', 
-        details: error.message 
-      }, 
-      { 
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
+      { error: 'Failed to read updates', details: error.message }, 
+      { status: 500 }
     );
   }
 } 

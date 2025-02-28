@@ -14,6 +14,8 @@ export default function UpdatesList() {
         if (response.ok) {
           const data = await response.json();
           setUpdates(data);
+        } else {
+          console.error('Failed to fetch updates');
         }
       } catch (error) {
         console.error('Error fetching updates:', error);
@@ -45,7 +47,7 @@ export default function UpdatesList() {
       {updates.map((update) => (
         <div key={update.id} className="update-card">
           <div className="update-date">
-            {new Date(update.date).toLocaleDateString('en-US', {
+            {new Date(update.created_at).toLocaleDateString('en-US', {
               year: 'numeric',
               month: 'long',
               day: 'numeric'
