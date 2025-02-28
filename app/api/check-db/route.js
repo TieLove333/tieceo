@@ -1,6 +1,12 @@
 import { createClient } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
+// Add this line to disable static generation
+export const dynamic = 'force-dynamic';
+
+// Remove the edge runtime directive if present
+// export const runtime = 'edge';
+
 export async function GET() {
   try {
     const client = createClient();

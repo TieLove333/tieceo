@@ -1,6 +1,8 @@
 import { createClient } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     // Create a client with explicit connection details for debugging
