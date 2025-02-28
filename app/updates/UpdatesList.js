@@ -26,11 +26,17 @@ export default function UpdatesList() {
         setDebugInfo({
           responseStatus: response.status,
           dataReceived: !!data,
+          success: data.success,
           updatesArray: Array.isArray(data.updates),
           updatesCount: data.updates ? data.updates.length : 0
         });
         
-        setUpdates(data.updates || []);
+        if (data.success && Array.isArray(data.updates)) {
+          setUpdates(data.updates);
+        } else {
+          setError('Invalid response format from server');
+        }
+        
         setLoading(false);
       } catch (err) {
         console.error('Error fetching updates:', err);
@@ -43,29 +49,58 @@ export default function UpdatesList() {
     fetchUpdates();
   }, []);
 
-  if (loading) return <div>Loading updates...</div>;
+  const refreshUpdates = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch('/api/updates');
+      if (!response.ok) throw new Error('Failed to refresh updates');
+      
+      const data = await response.json();
+      if (data.success && Array.isArray(data.updates)) {
+        setUpdates(data.updates);
+      } else {
+        setError('Invalid response format from server');
+      }
+    } catch (err) {
+      setError('Failed to refresh updates: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <div className="loading">Loading updates...</div>;
   
   return (
     <div className="updates-container">
-      {error && <div className="error">{error}</div>}
+      {error && <div className="error-message">{error}</div>}
       
-      {debugInfo && (
+      {process.env.NODE_ENV === 'development' && debugInfo && (
         <div className="debug-info" style={{background: '#f0f0f0', padding: '10px', marginBottom: '20px', fontSize: '12px'}}>
           <h4>Debug Info:</h4>
           <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
         </div>
       )}
       
+      <div className="updates-controls">
+        <button onClick={refreshUpdates} className="refresh-button">
+          Refresh Updates
+        </button>
+      </div>
+      
       {updates.length === 0 ? (
-        <p>No updates available yet.</p>
+        <p className="no-updates">No updates available yet.</p>
       ) : (
-        updates.map((update) => (
-          <div key={update.id} className="update-item">
-            <h3>{update.title}</h3>
-            <p className="date">{new Date(update.created_at).toLocaleDateString()}</p>
-            <div className="content">{update.content}</div>
-          </div>
-        ))
+        <div className="updates-list">
+          {updates.map((update) => (
+            <div key={update.id} className="update-item">
+              <h3 className="update-title">{update.title}</h3>
+              <p className="update-date">{new Date(update.created_at).toLocaleDateString()}</p>
+              <div className="update-content">{update.content}</div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
