@@ -1,7 +1,7 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
-const handler = NextAuth({
+const authOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -26,7 +26,9 @@ const handler = NextAuth({
   ],
   callbacks: {
     async session({ session, token }) {
-      session.user.isAdmin = token.isAdmin;
+      if (session.user) {
+        session.user.isAdmin = token.isAdmin;
+      }
       return session;
     },
     async jwt({ token, user }) {
@@ -39,6 +41,8 @@ const handler = NextAuth({
   pages: {
     signIn: '/login'
   }
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST }; 
