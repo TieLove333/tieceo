@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import TieLogo from './components/TieLogo';
 
@@ -24,11 +24,11 @@ const MatrixBackground = () => {
     const chars = "01000010 00000000 01110101 00000000 01101001 00000000 01101100 00000000 01100100 00000000 00100000 00000000 01100110 00000000 01101111 00000000 01110010 00000000 01100101 00000000 01110110 00000000 01100101 00000000 01110010 00000000 00100000 00000000 01100010 00000000 01110101 00000000 01101001 00000000 01101100 00000000 01100100 00000000 00100000 00000000";
     
     function draw() {
-      // Semi-transparent black to create fade effect
+      // Semi-transparent slate-50 to create fade effect
       ctx.fillStyle = 'rgba(248, 250, 252, 0.05)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      ctx.fillStyle = 'rgba(0, 255, 70, 0.3)';
+      ctx.fillStyle = 'rgba(203, 213, 225, 0.3)';
       ctx.font = `${fontSize}px monospace`;
       
       for (let i = 0; i < drops.length; i++) {
@@ -79,6 +79,39 @@ const MatrixBackground = () => {
   );
 };
 
+// Livestream component
+const Livestream = () => {
+  useEffect(() => {
+    // Load Twitter widget script
+    const script = document.createElement('script');
+    script.src = 'https://platform.twitter.com/widgets.js';
+    script.charset = 'utf-8';
+    script.async = true;
+    document.body.appendChild(script);
+    
+    // Force Twitter widgets to load
+    if (window.twttr && window.twttr.widgets) {
+      window.twttr.widgets.load();
+    }
+    
+    return () => {
+      // Clean up
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    };
+  }, []);
+
+  return (
+    <div className="twitter-embed-container">
+      <blockquote className="twitter-tweet" data-media-max-width="560">
+        <p lang="en" dir="ltr">Building in public live stream day 3 :) <a href="https://t.co/QZ8UuJ884d">https://t.co/QZ8UuJ884d</a></p>
+        &mdash; Tie Love (@tielove333) <a href="https://twitter.com/tielove333/status/1895601744119230908?ref_src=twsrc%5Etfw">February 28, 2025</a>
+      </blockquote>
+    </div>
+  );
+};
+
 export default function Home() {
   const sections = [
     {
@@ -101,18 +134,25 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       <MatrixBackground />
-      <main className="flex-grow container mx-auto px-4 py-16 relative z-10">
-        <div className="text-center min-h-[60vh] flex flex-col justify-center items-center">
-          <TieLogo className="mx-auto mb-12 w-32 h-32" />
-          <h1 className="hero-title mb-8">
-            Building A Solo $1B SAAS
-          </h1>
-          <p className="hero-description mb-16">
-            Building it in public and sharing it all here.
-          </p>
-        </div>
-
-        <div className="feature-cards">
+      
+      {/* Headline section */}
+      <div className="container flex flex-col items-center justify-center text-center mb-8">
+        <h1 className="hero-title mb-4 w-full text-center">
+          Building A Solo $1B SAAS
+        </h1>
+        <p className="hero-description mb-8 w-full text-center">
+          Building it in public and sharing it all here.
+        </p>
+      </div>
+      
+      {/* Livestream section */}
+      <div className="container flex flex-col items-center justify-center pt-8">
+        <h2 className="text-2xl font-bold mb-4 w-full text-center livestream-header">🔴 Watch Tie's Livestream</h2>
+        <Livestream />
+      </div>
+      
+      <main className="container py-16 flex flex-col items-center justify-center">
+        <div className="feature-cards w-full">
           {sections.map((section) => (
             <div key={section.title} className="feature-card">
               <h2 className="feature-title">{section.title}</h2>
