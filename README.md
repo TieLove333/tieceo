@@ -1,5 +1,16 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Important: Project Guidelines
+
+**Before working on this project, please read the [TIE-CEO-GUIDELINES.md](./TIE-CEO-GUIDELINES.md) document.**
+
+This document contains critical information about:
+- The project's code stack and architecture
+- Critical rules and guidelines for development
+- Database connection details (Supabase, not Neon)
+- Environment variable management
+- Deployment workflow
+
 ## Getting Started
 
 First, run the development server:
