@@ -1,17 +1,17 @@
 'use client';
 
 // Version: 1.0.2 - Enhanced styling with professional cards
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import Script from 'next/script';
 import UpdateForm from './UpdateForm';
 import AdminLogin from './AdminLogin';
-import { Button } from "../../src/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../src/components/ui/card";
-import TwitterEmbed from '../components/TwitterEmbed';
 
 export default function UpdatesPage() {
   const [updates, setUpdates] = useState([]);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [twitterScriptLoaded, setTwitterScriptLoaded] = useState(false);
+  const updatesContainerRef = useRef(null);
 
   useEffect(() => {
     // Fetch updates from API
@@ -31,67 +31,77 @@ export default function UpdatesPage() {
       }
     };
 
-    // Check admin status (simple client-side check)
-    const checkAdminStatus = () => {
-      const adminToken = localStorage.getItem('adminToken');
-      setIsAdmin(adminToken === 'true');
-    };
-
     fetchUpdates();
-    checkAdminStatus();
   }, []);
+
+  // Function to process Twitter embeds
+  const processTwitterEmbeds = useCallback(() => {
+    if (window.twttr && window.twttr.widgets && updatesContainerRef.current) {
+      console.log('Processing Twitter widgets...');
+      // First, clean up any existing widgets to prevent duplicates
+      const existingWidgets = updatesContainerRef.current.querySelectorAll('.twitter-tweet-rendered');
+      existingWidgets.forEach(widget => {
+        if (widget.parentNode) {
+          widget.parentNode.removeChild(widget);
+        }
+      });
+      
+      // Process all Twitter embeds in the container
+      window.twttr.widgets.load(updatesContainerRef.current);
+    }
+  }, []);
+
+  // Process Twitter embeds when updates are loaded or Twitter script is loaded
+  useEffect(() => {
+    if (!loading && updates.length > 0 && twitterScriptLoaded) {
+      // Add a small delay to ensure the DOM is fully updated
+      const timer = setTimeout(() => {
+        processTwitterEmbeds();
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [loading, updates, twitterScriptLoaded, processTwitterEmbeds]);
 
   const handleUpdateAdded = (newUpdate) => {
     setUpdates([newUpdate, ...updates]);
-  };
-
-  const handleLogin = (loginStatus) => {
-    setIsAdmin(loginStatus);
-  };
-
-  const handleForceRefresh = () => {
-    setLoading(true);
-    // Force reload the page
-    window.location.reload();
+    // When a new update is added, reprocess Twitter embeds after a delay
+    setTimeout(() => {
+      if (twitterScriptLoaded) {
+        processTwitterEmbeds();
+      }
+    }, 1000);
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
-      <div className="container flex flex-col items-center justify-center text-center mb-8 pt-12">
-        <h1 className="text-4xl font-bold mb-4 text-slate-800">
+      {/* Twitter widgets script */}
+      <Script 
+        src="https://platform.twitter.com/widgets.js" 
+        strategy="afterInteractive"
+        onLoad={() => {
+          console.log('Twitter script loaded');
+          setTwitterScriptLoaded(true);
+          // Add a small delay to ensure the DOM is ready
+          setTimeout(() => {
+            processTwitterEmbeds();
+          }, 500);
+        }}
+      />
+
+      <div className="hero container flex flex-col items-center justify-center text-center py-24 px-4">
+        <h1 className="hero-title text-4xl font-bold mb-6 text-slate-800">
           The Journey So Far
         </h1>
-        <p className="text-slate-600 mb-8 max-w-xl text-lg">
+        <p className="hero-description text-slate-600 mb-12 max-w-xl text-lg">
           Documenting every step of the $1B Solo SaaS Challenge
         </p>
-        <Button 
-          onClick={handleForceRefresh}
-          variant="outline"
-          size="sm"
-          className="mb-4 hover:bg-slate-100"
-        >
-          Refresh Page
-        </Button>
       </div>
 
-      {!isAdmin ? (
-        <div className="container max-w-md mx-auto px-4 py-4 admin-login-enhanced">
-          <div className="form-container-enhanced">
-            <div className="form-header-enhanced">
-              <h2 className="form-title-enhanced text-center">Admin Login</h2>
-            </div>
-            <div className="form-content-enhanced">
-              <AdminLogin onLogin={handleLogin} />
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="container max-w-2xl mx-auto px-4 py-4 mb-16">
-          <UpdateForm onUpdateAdded={handleUpdateAdded} />
-        </div>
-      )}
-
-      <div className="container max-w-3xl mx-auto px-4 py-8 space-y-16">
+      <div 
+        ref={updatesContainerRef}
+        className="container max-w-3xl mx-auto px-4 py-8 space-y-16"
+      >
         {loading ? (
           <div className="text-center text-slate-600 py-12 text-lg">
             <div className="animate-pulse">Loading updates...</div>
@@ -120,12 +130,10 @@ export default function UpdatesPage() {
                 </p>
               </div>
               <div className="card-content-enhanced">
-                <TwitterEmbed>
-                  <div 
-                    className="prose" 
-                    dangerouslySetInnerHTML={{ __html: update.content }}
-                  />
-                </TwitterEmbed>
+                <div 
+                  className="prose" 
+                  dangerouslySetInnerHTML={{ __html: update.content }}
+                />
               </div>
             </div>
           ))
