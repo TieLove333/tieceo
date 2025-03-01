@@ -12,10 +12,20 @@ export default function UpdatesList() {
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [deleting, setDeleting] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showLoginForm, setShowLoginForm] = useState(false);
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  // First check database connection
+  // First check database connection and authentication status
   useEffect(() => {
     checkDatabase();
+    // Check if user is authenticated
+    const authStatus = localStorage.getItem('isAuthenticated');
+    if (authStatus === 'true') {
+      setIsAuthenticated(true);
+    }
   }, []);
 
   const checkDatabase = async () => {
@@ -224,6 +234,37 @@ export default function UpdatesList() {
     }
   };
 
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoginError('');
+    setIsLoggingIn(true);
+
+    try {
+      // Simple client-side password check
+      const correctPassword = 'tieceo123'; // You should replace this with your desired password
+      
+      if (password === correctPassword) {
+        // Store authentication in localStorage
+        localStorage.setItem('isAuthenticated', 'true');
+        setIsAuthenticated(true);
+        setShowLoginForm(false);
+        setPassword('');
+      } else {
+        setLoginError('Incorrect password');
+      }
+    } catch (err) {
+      setLoginError('An error occurred. Please try again.');
+      console.error(err);
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('isAuthenticated');
+    setIsAuthenticated(false);
+  };
+
   if (loading) {
     return (
       <div className="p-4">
@@ -237,7 +278,24 @@ export default function UpdatesList() {
 
   return (
     <div className="p-4 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Updates</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Updates</h1>
+        {isAuthenticated ? (
+          <button
+            onClick={handleLogout}
+            className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm py-1 px-3 rounded transition-colors"
+          >
+            Logout
+          </button>
+        ) : (
+          <button
+            onClick={() => setShowLoginForm(!showLoginForm)}
+            className="bg-blue-500 hover:bg-blue-700 text-white text-sm py-1 px-3 rounded transition-colors"
+          >
+            Admin Login
+          </button>
+        )}
+      </div>
       
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -283,54 +341,97 @@ export default function UpdatesList() {
         </div>
       )}
       
-      <div className="mb-8 bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Add New Update</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="mb-4">
-            <label htmlFor="title" className="block text-gray-700 mb-2 font-medium">Title</label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={newUpdate.title}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label htmlFor="content" className="block text-gray-700 mb-2 font-medium">Content</label>
-            <textarea
-              id="content"
-              name="content"
-              value={newUpdate.content}
-              onChange={handleInputChange}
-              rows="4"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            ></textarea>
-          </div>
-          <button
-            type="submit"
-            disabled={submitting}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50 transition-colors"
-          >
-            {submitting ? 'Submitting...' : 'Add Update'}
-          </button>
-          
-          {submitError && (
-            <div className="mt-3 text-red-500 text-sm">
-              {submitError}
+      {showLoginForm && !isAuthenticated && (
+        <div className="mb-8 bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4">Admin Login</h2>
+          {loginError && (
+            <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
+              {loginError}
             </div>
           )}
-          
-          {submitSuccess && (
-            <div className="mt-3 text-green-500 text-sm">
-              Update added successfully!
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label htmlFor="admin-password" className="block text-gray-700 mb-2 font-medium">Password</label>
+              <input
+                type="password"
+                id="admin-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+                autoFocus
+              />
             </div>
-          )}
-        </form>
-      </div>
+            <div className="flex space-x-2">
+              <button
+                type="submit"
+                disabled={isLoggingIn}
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50 transition-colors"
+              >
+                {isLoggingIn ? 'Logging in...' : 'Login'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowLoginForm(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+      
+      {isAuthenticated && (
+        <div className="mb-8 bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4">Add New Update</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="mb-4">
+              <label htmlFor="title" className="block text-gray-700 mb-2 font-medium">Title</label>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                value={newUpdate.title}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label htmlFor="content" className="block text-gray-700 mb-2 font-medium">Content</label>
+              <textarea
+                id="content"
+                name="content"
+                value={newUpdate.content}
+                onChange={handleInputChange}
+                rows="4"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              ></textarea>
+            </div>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50 transition-colors"
+            >
+              {submitting ? 'Submitting...' : 'Add Update'}
+            </button>
+            
+            {submitError && (
+              <div className="mt-3 text-red-500 text-sm">
+                {submitError}
+              </div>
+            )}
+            
+            {submitSuccess && (
+              <div className="mt-3 text-green-500 text-sm">
+                Update added successfully!
+              </div>
+            )}
+          </form>
+        </div>
+      )}
       
       <div className="mb-4">
         <button 
@@ -354,13 +455,15 @@ export default function UpdatesList() {
                     {new Date(update.created_at).toLocaleDateString()}
                   </p>
                 </div>
-                <button
-                  onClick={() => handleDelete(update.id)}
-                  disabled={deleting === update.id}
-                  className="bg-red-500 hover:bg-red-700 text-white text-sm py-1 px-2 rounded transition-colors disabled:opacity-50"
-                >
-                  {deleting === update.id ? 'Deleting...' : 'Delete'}
-                </button>
+                {isAuthenticated && (
+                  <button
+                    onClick={() => handleDelete(update.id)}
+                    disabled={deleting === update.id}
+                    className="bg-red-500 hover:bg-red-700 text-white text-sm py-1 px-2 rounded transition-colors disabled:opacity-50"
+                  >
+                    {deleting === update.id ? 'Deleting...' : 'Delete'}
+                  </button>
+                )}
               </div>
               <p className="mt-2">{update.content}</p>
             </div>
