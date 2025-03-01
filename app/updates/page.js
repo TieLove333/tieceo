@@ -38,30 +38,51 @@ export default function UpdatesPage() {
   const processTwitterEmbeds = useCallback(() => {
     if (window.twttr && window.twttr.widgets && updatesContainerRef.current) {
       console.log('Processing Twitter widgets...');
-      // First, clean up any existing widgets to prevent duplicates
-      const existingWidgets = updatesContainerRef.current.querySelectorAll('.twitter-tweet-rendered');
-      existingWidgets.forEach(widget => {
-        if (widget.parentNode) {
-          widget.parentNode.removeChild(widget);
+      
+      // Select all blockquote elements with twitter-tweet class
+      const twitterBlocks = updatesContainerRef.current.querySelectorAll('blockquote.twitter-tweet');
+      
+      twitterBlocks.forEach((block) => {
+        try {
+          // Attempt to create a widget for each tweet
+          window.twttr.widgets.createTweet(
+            block.getAttribute('data-tweet-id'),
+            block.parentNode,
+            {
+              conversation: 'none',
+              cards: 'hidden'
+            }
+          );
+        } catch (error) {
+          console.error('Error processing tweet:', error);
         }
       });
-      
-      // Process all Twitter embeds in the container
-      window.twttr.widgets.load(updatesContainerRef.current);
     }
   }, []);
 
   // Process Twitter embeds when updates are loaded or Twitter script is loaded
   useEffect(() => {
-    if (!loading && updates.length > 0 && twitterScriptLoaded) {
-      // Add a small delay to ensure the DOM is fully updated
-      const timer = setTimeout(() => {
+    // Ensure Twitter script is loaded and updates are present
+    const loadTwitterWidgets = () => {
+      if (window.twttr && window.twttr.widgets && !loading && updates.length > 0) {
+        console.log('Attempting to load Twitter widgets...');
         processTwitterEmbeds();
-      }, 500);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [loading, updates, twitterScriptLoaded, processTwitterEmbeds]);
+      } else {
+        // Retry loading if conditions aren't met
+        setTimeout(loadTwitterWidgets, 1000);
+      }
+    };
+
+    // Initial load attempt
+    loadTwitterWidgets();
+
+    // Cleanup function
+    return () => {
+      if (window.twttr && window.twttr.widgets) {
+        window.twttr.widgets.load();
+      }
+    };
+  }, [loading, updates, processTwitterEmbeds]);
 
   const handleUpdateAdded = (newUpdate) => {
     setUpdates([newUpdate, ...updates]);
@@ -78,14 +99,17 @@ export default function UpdatesPage() {
       {/* Twitter widgets script */}
       <Script 
         src="https://platform.twitter.com/widgets.js" 
-        strategy="afterInteractive"
+        strategy="lazyOnload"
         onLoad={() => {
           console.log('Twitter script loaded');
           setTwitterScriptLoaded(true);
-          // Add a small delay to ensure the DOM is ready
-          setTimeout(() => {
+          // Attempt to process embeds immediately
+          if (window.twttr && window.twttr.widgets) {
             processTwitterEmbeds();
-          }, 500);
+          }
+        }}
+        onError={(e) => {
+          console.error('Failed to load Twitter script', e);
         }}
       />
 
