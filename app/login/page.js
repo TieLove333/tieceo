@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
@@ -14,16 +13,13 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
 
-    const result = await signIn('credentials', {
-      redirect: false,
-      username,
-      password
-    });
-
-    if (result?.error) {
-      setError('Invalid credentials');
-    } else {
+    // Simple hardcoded check - replace with real auth later
+    if (username === 'admin' && password === 'password') {
+      // Set a simple token in localStorage
+      localStorage.setItem('adminToken', 'true');
       router.push('/updates');
+    } else {
+      setError('Invalid credentials');
     }
   };
 
