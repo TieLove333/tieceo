@@ -13,13 +13,19 @@ export async function GET() {
 
 export async function POST(request) {
   try {
-    const { title, content } = await request.json();
+    const { title, content, category } = await request.json();
     
     if (!title || !content) {
       return Response.json({ error: 'Title and content are required' }, { status: 400 });
     }
     
-    const newUpdate = await db.createUpdate(title, content);
+    // Sanitize HTML content to prevent XSS
+    const sanitizedContent = content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    
+    // Use the provided category or default to 'General'
+    const updateCategory = category || 'General';
+    
+    const newUpdate = await db.createUpdate(title, sanitizedContent, updateCategory);
     
     return Response.json(newUpdate, { status: 201 });
   } catch (error) {

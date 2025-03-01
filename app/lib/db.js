@@ -52,6 +52,7 @@ export async function createUpdatesTable() {
       id SERIAL PRIMARY KEY,
       title VARCHAR(255) NOT NULL,
       content TEXT NOT NULL,
+      category VARCHAR(50) DEFAULT 'General',
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     );
   `);
@@ -68,12 +69,12 @@ export async function getUpdates(limit = 10) {
 }
 
 // Function to create a new update
-export async function createUpdate(title, content) {
+export async function createUpdate(title, content, category = 'General') {
   const result = await query(`
-    INSERT INTO updates (title, content, created_at)
-    VALUES ($1, $2, NOW())
+    INSERT INTO updates (title, content, category, created_at)
+    VALUES ($1, $2, $3, NOW())
     RETURNING *;
-  `, [title, content]);
+  `, [title, content, category]);
   return result.rows[0];
 }
 

@@ -1,0 +1,11 @@
+# IMPORTANT: Always refer to TIE-CEO-GUIDELINES.md before making any changes
+# Critical rules:
+# 1. Development server runs on port 3335
+# 2. Use Supabase PostgreSQL, NOT Neon DB
+# 3. ALWAYS ask for permission before pushing to GitHub
+# 4. Use db.js utility for database operations
+
+# Standard .cursorignore patterns below
+node_modules/
+.next/
+.git/ 

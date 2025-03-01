@@ -37,9 +37,16 @@
 
 ### 3. Environment Variables
 - All sensitive information must be stored in environment variables
-- Local development uses `.env.local`
-- Production uses Vercel environment variables
+- Local development uses `.env.local` for database connection strings
+- Production uses Vercel environment variables for:
+  - Database connection strings
+  - Stripe API keys and webhook secrets
+  - Authentication secrets
+  - Other service credentials
+- Environment variables should be synchronized between local and production environments
 - Never commit `.env.local` to GitHub
+- Access environment variables in code using `process.env.VARIABLE_NAME`
+- When adding new environment variables, update both local `.env.local` and Vercel project settings
 
 ### 4. API Development
 - All API routes should include proper error handling

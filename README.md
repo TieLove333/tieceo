@@ -1,8 +1,8 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TIE CEO - $1B Solo SaaS Challenge
 
-## Important: Project Guidelines
+## ⚠️ IMPORTANT: Project Guidelines ⚠️
 
-**Before working on this project, please read the [TIE-CEO-GUIDELINES.md](./TIE-CEO-GUIDELINES.md) document.**
+**BEFORE MAKING ANY CHANGES, read the [TIE-CEO-GUIDELINES.md](./TIE-CEO-GUIDELINES.md) document.**
 
 This document contains critical information about:
 - The project's code stack and architecture
@@ -10,6 +10,12 @@ This document contains critical information about:
 - Database connection details (Supabase, not Neon)
 - Environment variable management
 - Deployment workflow
+
+### Critical Rules Summary:
+1. Development server runs on port 3335
+2. Use Supabase PostgreSQL, NOT Neon DB
+3. ALWAYS ask for permission before pushing to GitHub
+4. Use db.js utility for database operations
 
 ## Getting Started
 
@@ -25,7 +31,7 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3335](http://localhost:3335) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
