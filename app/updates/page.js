@@ -6,6 +6,7 @@ import UpdateForm from './UpdateForm';
 import AdminLogin from './AdminLogin';
 import { Button } from "../../src/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../src/components/ui/card";
+import TwitterEmbed from '../components/TwitterEmbed';
 
 export default function UpdatesPage() {
   const [updates, setUpdates] = useState([]);
@@ -119,10 +120,12 @@ export default function UpdatesPage() {
                 </p>
               </div>
               <div className="card-content-enhanced">
-                <div 
-                  className="prose" 
-                  dangerouslySetInnerHTML={{ __html: update.content }}
-                />
+                <TwitterEmbed>
+                  <div 
+                    className="prose" 
+                    dangerouslySetInnerHTML={{ __html: update.content }}
+                  />
+                </TwitterEmbed>
               </div>
             </div>
           ))
