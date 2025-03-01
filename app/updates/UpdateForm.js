@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,6 +16,8 @@ import {
 } from "../../src/components/ui/form";
 import { Input } from "../../src/components/ui/input";
 import { Button } from "../../src/components/ui/button";
+import { Textarea } from "../../src/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../src/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -46,24 +48,33 @@ const CATEGORIES = [
 
 export default function UpdateForm({ onUpdateAdded }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState("visual");
+  const [htmlContent, setHtmlContent] = useState("");
+  const quillRef = useRef(null);
 
+  // Configure Quill to allow HTML content
   const quillModules = {
     toolbar: [
       [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
       ['bold', 'italic', 'underline', 'strike'],
       [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      ['link', 'image'],
+      ['link', 'image', 'video'],
       [{ 'align': [] }],
+      ['blockquote', 'code-block'],
       ['clean']
-    ]
+    ],
+    clipboard: {
+      // Allow pasting HTML content
+      matchVisual: false
+    }
   };
 
   const quillFormats = [
     'header',
     'bold', 'italic', 'underline', 'strike',
     'list', 'bullet',
-    'link', 'image',
-    'align'
+    'link', 'image', 'video',
+    'align', 'blockquote', 'code-block'
   ];
 
   const form = useForm({
@@ -75,16 +86,47 @@ export default function UpdateForm({ onUpdateAdded }) {
     }
   });
 
+  // Sync content between visual editor and HTML editor
+  useEffect(() => {
+    if (activeTab === "code") {
+      setHtmlContent(form.getValues().content || "");
+    }
+  }, [activeTab, form]);
+
+  // Handle tab change
+  const handleTabChange = (value) => {
+    if (value === "code" && activeTab === "visual") {
+      // Switching from visual to code
+      setHtmlContent(form.getValues().content || "");
+    } else if (value === "visual" && activeTab === "code") {
+      // Switching from code to visual
+      form.setValue("content", htmlContent, { shouldValidate: true });
+    }
+    setActiveTab(value);
+  };
+
+  // Handle HTML content change
+  const handleHtmlChange = (e) => {
+    setHtmlContent(e.target.value);
+    form.setValue("content", e.target.value, { shouldValidate: true });
+  };
+
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     
     try {
+      // Ensure we're sending the raw HTML content
+      const contentToSend = activeTab === "code" ? htmlContent : data.content;
+      
       const response = await fetch('/api/updates', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          content: contentToSend
+        }),
       });
 
       if (!response.ok) {
@@ -96,6 +138,7 @@ export default function UpdateForm({ onUpdateAdded }) {
       
       // Reset form
       form.reset();
+      setHtmlContent("");
       
       // Notify parent component
       if (onUpdateAdded) {
@@ -185,19 +228,57 @@ export default function UpdateForm({ onUpdateAdded }) {
               render={({ field }) => (
                 <FormItem className="mb-8 update-form-content-field">
                   <FormControl>
-                    <div className="border rounded-md border-slate-300 shadow-sm focus-within:ring-2 focus-within:ring-slate-500 focus-within:border-transparent">
-                      <ReactQuill
-                        theme="snow"
-                        value={field.value}
-                        onChange={field.onChange}
-                        modules={quillModules}
-                        formats={quillFormats}
-                        placeholder="Write your update here..."
-                        className="rounded-md" 
-                        readOnly={isSubmitting}
-                      />
+                    <div className="w-full">
+                      <div className="flex border-b mb-4">
+                        <button
+                          type="button"
+                          onClick={() => handleTabChange("visual")}
+                          className={`px-4 py-2 ${activeTab === "visual" 
+                            ? "border-b-2 border-slate-700 font-medium" 
+                            : "text-slate-500"}`}
+                        >
+                          Visual Editor
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleTabChange("code")}
+                          className={`px-4 py-2 ${activeTab === "code" 
+                            ? "border-b-2 border-slate-700 font-medium" 
+                            : "text-slate-500"}`}
+                        >
+                          HTML Code
+                        </button>
+                      </div>
+                      
+                      {activeTab === "visual" ? (
+                        <div className="border rounded-md border-slate-300 shadow-sm focus-within:ring-2 focus-within:ring-slate-500 focus-within:border-transparent">
+                          <ReactQuill
+                            ref={quillRef}
+                            theme="snow"
+                            value={field.value}
+                            onChange={field.onChange}
+                            modules={quillModules}
+                            formats={quillFormats}
+                            placeholder="Write your update here..."
+                            className="rounded-md" 
+                            readOnly={isSubmitting}
+                            preserveWhitespace={true}
+                          />
+                        </div>
+                      ) : (
+                        <Textarea
+                          value={htmlContent}
+                          onChange={handleHtmlChange}
+                          placeholder="Enter HTML content here, including embed codes..."
+                          className="font-mono min-h-[300px] p-4"
+                          readOnly={isSubmitting}
+                        />
+                      )}
                     </div>
                   </FormControl>
+                  <div className="mt-2 text-sm text-slate-500">
+                    Tip: Switch to HTML Code view to paste embed codes like Twitter embeds.
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -205,7 +286,7 @@ export default function UpdateForm({ onUpdateAdded }) {
 
             <Button 
               type="submit" 
-              className="form-button-enhanced mt-8 update-form-button"
+              className="form-button-enhanced update-form-button"
               disabled={isSubmitting}
             >
               {isSubmitting ? 'Posting...' : 'Post Update'}
