@@ -103,10 +103,10 @@ const Livestream = () => {
   }, []);
 
   return (
-    <div className="twitter-embed-container">
-      <blockquote className="twitter-tweet" data-media-max-width="560">
+    <div className="twitter-embed-container livestream-video">
+      <blockquote className="twitter-tweet" data-media-max-width="900">
         <p lang="en" dir="ltr">Building in public live stream day 3 :) <a href="https://t.co/QZ8UuJ884d">https://t.co/QZ8UuJ884d</a></p>
-        &mdash; Tie Love (@tielove333) <a href="https://twitter.com/tielove333/status/1895601744119230908?ref_src=twsrc%5Etfw">February 28, 2025</a>
+        &mdash; Tie Love (@tielove333) <a href="https://twitter.com/tielove333/status/1895697562553995736?ref_src=twsrc%5Etfw">February 28, 2025</a>
       </blockquote>
     </div>
   );
@@ -138,16 +138,16 @@ export default function Home() {
       {/* Headline section */}
       <div className="container flex flex-col items-center justify-center text-center mb-8">
         <h1 className="hero-title mb-4 w-full text-center">
-          Building A Solo $1B SAAS
+          The $1B Solo SaaS Challenge
         </h1>
         <p className="hero-description mb-8 w-full text-center">
-          Building it in public and sharing it all here.
+          Proving that a single founder can build something massive
         </p>
       </div>
       
       {/* Livestream section */}
       <div className="container flex flex-col items-center justify-center pt-8">
-        <h2 className="text-2xl font-bold mb-4 w-full text-center livestream-header">🔴 Watch Tie's Livestream</h2>
+        <h2 className="text-2xl font-bold mb-4 w-full text-center livestream-header">🔴 Watch The Livestream</h2>
         <Livestream />
       </div>
       

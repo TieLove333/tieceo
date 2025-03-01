@@ -5,7 +5,7 @@
 
 :root {
   /* Slate color palette from shadcn/ui */
-  --slate-50: #f8fafc;
+  --slate-50: #f9f9f9;
   --slate-100: #f1f5f9;
   --slate-200: #e2e8f0;
   --slate-300: #cbd5e1;
@@ -20,7 +20,7 @@
   /* Theme variables using slate colors */
   --primary-foreground: var(--slate-900);
   --muted-foreground: var(--slate-500);
-  --background: var(--slate-50);
+  --background: var(--slate-100);
   --card: #ffffff;
   --border: var(--slate-200);
   --accent: #10b981;
@@ -34,7 +34,7 @@
 }
 
 body {
-  background-color: var(--slate-50);
+  background-color: var(--slate-100);
   color: var(--primary-foreground);
   font-family: 'Inter', 'Poppins', sans-serif;
   line-height: 1.6;
@@ -70,8 +70,8 @@ body {
 }
 
 .twitter-tweet {
-  margin-left: auto !important;
-  margin-right: auto !important;
+  margin: 0px !important;
+  padding: 3px;
 }
 
 iframe.twitter-tweet-rendered {
@@ -128,7 +128,7 @@ iframe.twitter-tweet-rendered {
   font-weight: 800;
   color: var(--slate-800);
   line-height: 1.2;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Inter', sans-serif;
   text-align: center;
   width: 100%;
   padding-top: 120px;
@@ -142,7 +142,7 @@ iframe.twitter-tweet-rendered {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin-top: 0.5rem;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .hero-description {
@@ -218,7 +218,7 @@ iframe.twitter-tweet-rendered {
   font-weight: 600;
   color: var(--slate-800);
   margin-bottom: 1rem;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .feature-description {
@@ -269,7 +269,7 @@ iframe.twitter-tweet-rendered {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--slate-700);
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .footer-logo p {
@@ -337,7 +337,7 @@ iframe.twitter-tweet-rendered {
   font-weight: 700;
   color: #333;
   margin-bottom: 1rem;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .updates-header p {
@@ -365,7 +365,7 @@ iframe.twitter-tweet-rendered {
   font-size: 1.5rem;
   color: #333;
   margin-bottom: 1rem;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .empty-state p {
@@ -389,7 +389,7 @@ iframe.twitter-tweet-rendered {
   font-weight: 700;
   color: #333;
   margin-bottom: 1rem;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .tasks-header p {
@@ -414,7 +414,7 @@ iframe.twitter-tweet-rendered {
 .section-header h2 {
   font-size: 1.8rem;
   color: var(--slate-700);
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .section-header p {
@@ -499,7 +499,7 @@ iframe.twitter-tweet-rendered {
   font-size: 2.5rem;
   color: var(--slate-700);
   margin-bottom: 0.5rem;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .revenue-header p {
@@ -580,7 +580,7 @@ iframe.twitter-tweet-rendered {
   font-weight: 700;
   color: var(--slate-700);
   margin: 1rem 0;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .metric-trend {
@@ -625,7 +625,7 @@ iframe.twitter-tweet-rendered {
   font-weight: 700;
   color: var(--slate-700);
   margin-top: 1rem;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 /* Header Styling */
@@ -739,7 +739,7 @@ iframe.twitter-tweet-rendered {
   font-weight: 700;
   color: #333;
   margin-bottom: 1rem;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .admin-header p {
@@ -856,7 +856,7 @@ iframe.twitter-tweet-rendered {
   font-weight: 600;
   color: #333;
   margin-bottom: 1rem;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .update-content {
@@ -926,4 +926,166 @@ iframe.twitter-tweet-rendered {
 .x-button svg {
   width: 20px;
   height: 20px;
-} 
+}
+
+/* Livestream Video Styling */
+.livestream-video {
+  width: 900px;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  --size: 200;
+  --anchor: 0;
+  --duration: 8;
+  --delay: 0s;
+  --color-from: var(--slate-600);
+  --color-to: var(--slate-800);
+}
+
+.livestream-video::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  padding: 1px;
+  background: var(--slate-200);
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: 1;
+}
+
+.livestream-video::after {
+  content: '';
+  position: absolute;
+  width: calc(var(--size) * 1px);
+  aspect-ratio: 1/3;
+  offset-path: rect(0 auto auto 0 round 12px);
+  offset-anchor: calc(var(--anchor) * 1%) 50%;
+  background: linear-gradient(to left, transparent 10%, var(--color-from), var(--color-to), transparent 70%);
+  animation: border-beam calc(var(--duration) * 1s) infinite linear;
+  animation-delay: var(--delay);
+  z-index: 2;
+}
+
+.livestream-video iframe {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  background: white;
+}
+
+@keyframes border-beam {
+  0% {
+    offset-distance: 0%;
+  }
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+/* Updates Card Styling */
+.update-card-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.update-card {
+  width: 740px;
+  max-width: 95vw;
+  background-color: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.update-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.update-card:hover::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    transparent,
+    transparent,
+    var(--slate-400),
+    var(--slate-600),
+    var(--slate-800)
+  );
+  animation: rotate 4s linear infinite;
+  z-index: 1;
+}
+
+.update-card:hover::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  background: white;
+  border-radius: 15px;
+  z-index: 2;
+}
+
+.update-card-content {
+  position: relative;
+  z-index: 3;
+}
+
+.update-date {
+  font-size: 0.9rem;
+  color: var(--slate-600);
+  margin-bottom: 0.5rem;
+}
+
+.update-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--slate-800);
+  margin-bottom: 1rem;
+}
+
+.update-text {
+  color: var(--slate-700);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.update-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.update-delete-btn {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.update-delete-btn:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+}

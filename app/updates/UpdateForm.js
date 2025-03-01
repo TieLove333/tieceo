@@ -1,26 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import styles from './Updates.module.css';
 
 export default function UpdateForm({ onUpdateAdded }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
-  const [debugInfo, setDebugInfo] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
-    setSuccess(false);
-    setDebugInfo(null);
 
     try {
-      console.log('Submitting update:', { title, content });
-      
       const response = await fetch('/api/updates', {
         method: 'POST',
         headers: {
@@ -29,37 +22,23 @@ export default function UpdateForm({ onUpdateAdded }) {
         body: JSON.stringify({ title, content }),
       });
 
-      console.log('Response status:', response.status);
-      
-      const data = await response.json();
-      console.log('Response data:', data);
-      
-      setDebugInfo({
-        responseStatus: response.status,
-        dataReceived: !!data,
-        success: data.success
-      });
-      
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create update');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create update');
       }
 
-      if (!data.success) {
-        throw new Error(data.error || 'Server reported failure');
-      }
-      
+      const newUpdate = await response.json();
+
       // Reset form
       setTitle('');
       setContent('');
-      setSuccess(true);
       
       // Notify parent component
-      if (onUpdateAdded && data.update) {
-        onUpdateAdded(data.update);
+      if (onUpdateAdded) {
+        onUpdateAdded(newUpdate);
       }
     } catch (err) {
-      console.error('Error creating update:', err);
-      setError(err.message || 'Failed to create update. Please try again.');
+      setError(err.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -67,46 +46,43 @@ export default function UpdateForm({ onUpdateAdded }) {
 
   return (
     <div className="update-form-container">
-      <h2>Post a New Update</h2>
-      {error && <div className="error-message">{error}</div>}
-      {success && <div className="success-message">Update posted successfully!</div>}
-      
-      {process.env.NODE_ENV === 'development' && debugInfo && (
-        <div className="debug-info" style={{background: '#f0f0f0', padding: '10px', marginBottom: '20px', fontSize: '12px'}}>
-          <h4>Debug Info:</h4>
-          <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
+      {error && (
+        <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
+          {error}
         </div>
       )}
       
-      <form onSubmit={handleSubmit} className="update-form">
-        <div className="form-group">
-          <label htmlFor="title">Title</label>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="title" className="block mb-2">Title</label>
           <input
             type="text"
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            className="w-full px-3 py-2 border rounded"
             required
             disabled={isSubmitting}
-            className="form-input"
           />
         </div>
-        <div className="form-group">
-          <label htmlFor="content">Content</label>
+        
+        <div>
+          <label htmlFor="content" className="block mb-2">Content</label>
           <textarea
             id="content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
+            className="w-full px-3 py-2 border rounded"
+            rows={5}
             required
             disabled={isSubmitting}
-            rows={5}
-            className="form-textarea"
           />
         </div>
+        
         <button 
           type="submit" 
+          className="w-full bg-slate-700 text-white py-2 rounded"
           disabled={isSubmitting}
-          className="submit-button"
         >
           {isSubmitting ? 'Posting...' : 'Post Update'}
         </button>

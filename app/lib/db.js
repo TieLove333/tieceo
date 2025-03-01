@@ -93,4 +93,22 @@ export async function insertSampleUpdate() {
     );
   }
   return null;
+}
+
+// Function to delete an update by ID
+export async function deleteUpdate(updateId) {
+  // Ensure updateId is a number
+  const numericUpdateId = parseInt(updateId, 10);
+  
+  if (isNaN(numericUpdateId)) {
+    throw new Error('Invalid update ID');
+  }
+  
+  const result = await query(`
+    DELETE FROM updates 
+    WHERE id = $1 
+    RETURNING *;
+  `, [numericUpdateId]);
+  
+  return result.rows.length > 0;
 } 

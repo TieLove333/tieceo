@@ -1,113 +1,37 @@
-import * as db from '../../lib/db';
-
-export const dynamic = 'force-dynamic';
-export const maxDuration = 10; // Set maximum duration to 10 seconds
-
-// Override Node.js TLS rejection for development
-// Note: This is not recommended for production, but works for development
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+import { sql } from '@vercel/postgres';
 
 export async function GET() {
-  console.log('UPDATES-API: Starting database connection');
-  
   try {
-    // Get updates from the database
-    const updates = await db.getUpdates(10);
-    console.log(`UPDATES-API: Found ${updates.length} updates`);
+    const { rows } = await sql`
+      SELECT * FROM updates 
+      ORDER BY created_at DESC 
+      LIMIT 10
+    `;
     
-    // Return updates as JSON
-    const responseData = {
-      success: true,
-      updates: updates
-    };
-    
-    return new Response(JSON.stringify(responseData), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-store, max-age=0'
-      }
-    });
+    return Response.json(rows);
   } catch (error) {
-    console.error(`UPDATES-API ERROR: ${error.message}`);
-    console.error(error.stack);
-    
-    // Return error response
-    const errorResponse = {
-      success: false,
-      error: error.message,
-      stack: error.stack
-    };
-    
-    return new Response(JSON.stringify(errorResponse), {
-      status: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-store, max-age=0'
-      }
-    });
+    console.error('Failed to fetch updates:', error);
+    return Response.json({ error: error.message }, { status: 500 });
   }
 }
 
 export async function POST(request) {
-  console.log('UPDATES-API: Processing POST request');
-  
   try {
-    // Parse request body
-    const body = await request.json();
-    const { title, content } = body;
+    const { title, content } = await request.json();
     
-    // Validate input
     if (!title || !content) {
-      const validationError = {
-        success: false,
-        error: 'Title and content are required'
-      };
-      
-      return new Response(JSON.stringify(validationError), {
-        status: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store, max-age=0'
-        }
-      });
+      return Response.json({ error: 'Title and content are required' }, { status: 400 });
     }
     
-    // Create new update
-    const update = await db.createUpdate(title, content);
-    console.log(`UPDATES-API: Created new update with ID ${update.id}`);
+    const { rows } = await sql`
+      INSERT INTO updates (title, content, created_at)
+      VALUES (${title}, ${content}, NOW())
+      RETURNING *
+    `;
     
-    // Return success response
-    const successResponse = {
-      success: true,
-      message: 'Update created successfully',
-      update: update
-    };
-    
-    return new Response(JSON.stringify(successResponse), {
-      status: 201,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-store, max-age=0'
-      }
-    });
+    return Response.json(rows[0], { status: 201 });
   } catch (error) {
-    console.error(`UPDATES-API ERROR: ${error.message}`);
-    console.error(error.stack);
-    
-    // Return error response
-    const errorResponse = {
-      success: false,
-      error: error.message,
-      stack: error.stack
-    };
-    
-    return new Response(JSON.stringify(errorResponse), {
-      status: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-store, max-age=0'
-      }
-    });
+    console.error('Failed to create update:', error);
+    return Response.json({ error: error.message }, { status: 500 });
   }
 } 
