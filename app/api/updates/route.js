@@ -1,25 +1,8 @@
-import { sql } from '@vercel/postgres';
-
-export const dynamic = 'force-dynamic';
+import * as db from '../../lib/db';
 
 export async function GET() {
   try {
-    // First, ensure the table exists
-    await sql`
-      CREATE TABLE IF NOT EXISTS updates (
-        id SERIAL PRIMARY KEY,
-        title VARCHAR(255) NOT NULL,
-        content TEXT NOT NULL,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-      );
-    `;
-    
-    // Then query for updates
-    const { rows } = await sql`
-      SELECT * FROM updates 
-      ORDER BY created_at DESC 
-      LIMIT 10
-    `;
+    const rows = await db.getUpdates();
     
     return Response.json(rows);
   } catch (error) {
@@ -36,24 +19,9 @@ export async function POST(request) {
       return Response.json({ error: 'Title and content are required' }, { status: 400 });
     }
     
-    // Ensure the table exists
-    await sql`
-      CREATE TABLE IF NOT EXISTS updates (
-        id SERIAL PRIMARY KEY,
-        title VARCHAR(255) NOT NULL,
-        content TEXT NOT NULL,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-      );
-    `;
+    const newUpdate = await db.createUpdate(title, content);
     
-    // Insert the new update
-    const { rows } = await sql`
-      INSERT INTO updates (title, content, created_at)
-      VALUES (${title}, ${content}, NOW())
-      RETURNING *
-    `;
-    
-    return Response.json(rows[0], { status: 201 });
+    return Response.json(newUpdate, { status: 201 });
   } catch (error) {
     console.error('Failed to create update:', error);
     return Response.json({ error: error.message }, { status: 500 });
