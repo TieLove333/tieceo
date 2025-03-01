@@ -1,162 +1,95 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import UpdateForm from '../updates/UpdateForm';
 
 export default function AdminPage() {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
   const [password, setPassword] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
   
   const router = useRouter();
   
+  // Check if already authenticated on load
+  useEffect(() => {
+    const token = localStorage.getItem('adminToken');
+    if (token === 'true') {
+      setIsAuthenticated(true);
+    }
+  }, []);
+  
   const handleAuthenticate = (e) => {
     e.preventDefault();
     // Simple password check - in production, use proper authentication
-    if (password === 'tie2024') {
+    if (password === 'tie') {
       setIsAuthenticated(true);
+      localStorage.setItem('adminToken', 'true');
       setMessage('');
     } else {
       setMessage('Incorrect password');
     }
   };
   
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!title || !content) {
-      setMessage('Please fill in all fields');
-      return;
-    }
-    
-    setIsSubmitting(true);
-    
-    try {
-      const response = await fetch('/api/updates/route', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title,
-          content,
-          date: new Date().toISOString(),
-        }),
-      });
-      
-      console.log('Response status:', response.status);
-      
-      // Always try to get response text, even for non-OK responses
-      const responseText = await response.text();
-      console.log('Full response text:', responseText);
-      
-      // Parse the response manually
-      let responseData;
-      try {
-        responseData = responseText ? JSON.parse(responseText) : {};
-      } catch (parseError) {
-        console.error('Failed to parse response:', parseError);
-        console.error('Unparseable response text:', responseText);
-        setMessage('Failed to parse server response');
-        setIsSubmitting(false);
-        return;
-      }
-      
-      if (response.ok) {
-        setTitle('');
-        setContent('');
-        setMessage('Update published successfully!');
-        router.refresh();
-      } else {
-        // Use more detailed error reporting
-        const errorMessage = responseData.error || responseData.details || 'Failed to publish update';
-        setMessage(errorMessage);
-        console.error('Update submission error:', responseData);
-      }
-    } catch (error) {
-      console.error('Submission network error:', error);
-      setMessage('Network error: ' + error.message);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleUpdateAdded = (newUpdate) => {
+    setMessage('Update published successfully!');
+    // Optionally redirect to updates page to see the new update
+    // router.push('/updates');
   };
   
   if (!isAuthenticated) {
     return (
-      <main className="admin-page">
-        <section className="admin-header">
-          <h1>Admin Login</h1>
-        </section>
-        
-        <section className="admin-form">
-          <form onSubmit={handleAuthenticate}>
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
+      <main className="min-h-screen flex items-center justify-center bg-slate-100">
+        <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
+          <h1 className="text-2xl font-bold mb-6 text-center">Admin Login</h1>
+          
+          {message && (
+            <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
+              {message}
+            </div>
+          )}
+          
+          <form onSubmit={handleAuthenticate} className="space-y-4">
+            <div>
+              <label htmlFor="password" className="block mb-2">Password</label>
               <input
                 type="password"
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3 py-2 border rounded-md"
                 required
               />
             </div>
             
-            {message && <div className="form-message error">{message}</div>}
-            
-            <button type="submit" className="submit-button">
+            <button
+              type="submit"
+              className="w-full bg-slate-700 text-white py-2 rounded-md hover:bg-slate-600 transition"
+            >
               Login
             </button>
           </form>
-        </section>
+        </div>
       </main>
     );
   }
   
   return (
-    <main className="admin-page">
-      <section className="admin-header">
-        <h1>Publish Update</h1>
-        <p>Share your latest progress with your audience</p>
-      </section>
-      
-      <section className="admin-form">
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="title">Title</label>
-            <input
-              type="text"
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
+    <main className="min-h-screen bg-slate-50 py-12">
+      <div className="container max-w-3xl mx-auto px-4">
+        <h1 className="text-3xl font-bold mb-8 text-center text-slate-800">Admin Dashboard</h1>
+        
+        {message && (
+          <div className="bg-green-100 text-green-700 p-4 rounded-md mb-8">
+            {message}
           </div>
-          
-          <div className="form-group">
-            <label htmlFor="content">Content</label>
-            <textarea
-              id="content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows="10"
-              required
-            ></textarea>
-          </div>
-          
-          {message && <div className="form-message success">{message}</div>}
-          
-          <button 
-            type="submit" 
-            className="submit-button"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Publishing...' : 'Publish Update'}
-          </button>
-        </form>
-      </section>
+        )}
+        
+        <div className="bg-white p-6 rounded-xl shadow-md">
+          <h2 className="text-xl font-semibold mb-4">Create New Update</h2>
+          <UpdateForm onUpdateAdded={handleUpdateAdded} />
+        </div>
+      </div>
     </main>
   );
 } 
