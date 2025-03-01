@@ -11,6 +11,7 @@ export default function UpdatesList() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [deleting, setDeleting] = useState(null);
 
   // First check database connection
   useEffect(() => {
@@ -187,6 +188,42 @@ export default function UpdatesList() {
     }
   };
 
+  const handleDelete = async (updateId) => {
+    if (!confirm('Are you sure you want to delete this update?')) {
+      return;
+    }
+    
+    setDeleting(updateId);
+    
+    try {
+      const response = await fetch(`/api/updates/${updateId}`, {
+        method: 'DELETE',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Remove the deleted update from the state
+        setUpdates(updates.filter(update => update.id !== updateId));
+      } else {
+        throw new Error(data.error || 'Failed to delete update');
+      }
+    } catch (err) {
+      console.error('Error deleting update:', err);
+      alert('Failed to delete update: ' + err.message);
+    } finally {
+      setDeleting(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="p-4">
@@ -248,9 +285,9 @@ export default function UpdatesList() {
       
       <div className="mb-8 bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-semibold mb-4">Add New Update</h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="mb-4">
-            <label htmlFor="title" className="block text-gray-700 mb-2">Title</label>
+            <label htmlFor="title" className="block text-gray-700 mb-2 font-medium">Title</label>
             <input
               type="text"
               id="title"
@@ -262,7 +299,7 @@ export default function UpdatesList() {
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="content" className="block text-gray-700 mb-2">Content</label>
+            <label htmlFor="content" className="block text-gray-700 mb-2 font-medium">Content</label>
             <textarea
               id="content"
               name="content"
@@ -276,7 +313,7 @@ export default function UpdatesList() {
           <button
             type="submit"
             disabled={submitting}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50 transition-colors"
           >
             {submitting ? 'Submitting...' : 'Add Update'}
           </button>
@@ -298,7 +335,7 @@ export default function UpdatesList() {
       <div className="mb-4">
         <button 
           onClick={() => fetchUpdates().catch(err => setError('Failed to refresh updates: ' + err.message))}
-          className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded"
+          className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded transition-colors"
         >
           Refresh Updates
         </button>
@@ -310,11 +347,22 @@ export default function UpdatesList() {
         <div className="space-y-4">
           {updates.map((update) => (
             <div key={update.id} className="border rounded p-4 bg-white shadow-sm">
-              <h3 className="text-xl font-bold">{update.title}</h3>
-              <p className="text-sm text-gray-500 mb-2">
-                {new Date(update.created_at).toLocaleDateString()}
-              </p>
-              <p>{update.content}</p>
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="text-xl font-bold">{update.title}</h3>
+                  <p className="text-sm text-gray-500 mb-2">
+                    {new Date(update.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleDelete(update.id)}
+                  disabled={deleting === update.id}
+                  className="bg-red-500 hover:bg-red-700 text-white text-sm py-1 px-2 rounded transition-colors disabled:opacity-50"
+                >
+                  {deleting === update.id ? 'Deleting...' : 'Delete'}
+                </button>
+              </div>
+              <p className="mt-2">{update.content}</p>
             </div>
           ))}
         </div>
