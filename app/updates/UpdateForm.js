@@ -16,8 +16,7 @@ import {
 } from "../../src/components/ui/form";
 import { Input } from "../../src/components/ui/input";
 import { Button } from "../../src/components/ui/button";
-import { Textarea } from "../../src/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../src/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "../../src/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -25,7 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../src/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "../../src/components/ui/card";
 
 // Dynamically import Quill to prevent SSR issues
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
@@ -266,11 +264,11 @@ export default function UpdateForm({ onUpdateAdded }) {
                           />
                         </div>
                       ) : (
-                        <Textarea
+                        <textarea
                           value={htmlContent}
                           onChange={handleHtmlChange}
                           placeholder="Enter HTML content here, including embed codes..."
-                          className="font-mono min-h-[300px] p-4"
+                          className="w-full font-mono min-h-[300px] p-4 border rounded-md border-slate-300"
                           readOnly={isSubmitting}
                         />
                       )}
