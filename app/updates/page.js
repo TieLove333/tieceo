@@ -12,9 +12,16 @@ export default function UpdatesPage() {
   const [loading, setLoading] = useState(true);
   const [twitterScriptLoaded, setTwitterScriptLoaded] = useState(false);
   const updatesContainerRef = useRef(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  // Check for admin token in localStorage
   useEffect(() => {
-    // Fetch updates from API
+    const token = localStorage.getItem('adminToken');
+    setIsAuthenticated(token === 'true');
+  }, []);
+
+  // Fetch updates from API
+  useEffect(() => {
     const fetchUpdates = async () => {
       try {
         // Add cache-busting timestamp to prevent browser caching
@@ -121,6 +128,20 @@ export default function UpdatesPage() {
           Documenting every step of the $1B Solo SaaS Challenge
         </p>
       </div>
+
+      {/* Only show UpdateForm for authenticated users */}
+      {isAuthenticated ? (
+        <div className="container max-w-3xl mx-auto px-4 mb-12">
+          <Card>
+            <CardHeader>
+              <CardTitle>Add New Update</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <UpdateForm onUpdateAdded={handleUpdateAdded} />
+            </CardContent>
+          </Card>
+        </div>
+      ) : null}
 
       <div 
         ref={updatesContainerRef}
