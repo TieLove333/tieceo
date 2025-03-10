@@ -9,7 +9,6 @@ import IconBox from "./app/components/purity/Icons/IconBox";
 import LineChart from "./app/components/purity/Charts/LineChart";
 import MiniStatistics from "./app/components/purity/Card/MiniStatistics";
 import { Providers } from "./app/providers";
-import { Providers } from "./app/providers 2";
 import { StatsCard } from "./app/components/dashboard/StatsCard";
 
 builder.init(process.env.NEXT_PUBLIC_BUILDER_API_KEY!);
@@ -215,20 +214,6 @@ Builder.registerComponent(StatsCard, {
       name: "value",
       type: "string",
       required: true,
-    },
-  ],
-});
-
-Builder.registerComponent(withChildren(Providers), {
-  name: "Providers",
-  inputs: [
-    {
-      name: "children",
-      type: "string",
-      hideFromUI: true,
-      meta: {
-        ts: "ReactNode",
-      },
     },
   ],
 });
