@@ -4,13 +4,11 @@ import { RenderBuilderContent } from "../../components/builder";
 // Builder Public API Key set in .env file
 builder.init(process.env.NEXT_PUBLIC_BUILDER_API_KEY!);
 
-interface PageProps {
-  params: {
-    page: string[];
-  };
+interface PageParams {
+  page: string[];
 }
 
-export default async function Page(props: PageProps) {
+export default async function Page({ params }: { params: PageParams }) {
   const builderModelName = "figma-imports";
 
   const content = await builder
@@ -18,7 +16,7 @@ export default async function Page(props: PageProps) {
     .get(builderModelName, {
       userAttributes: {
         // Use the page path specified in the URL to fetch the content
-        urlPath: "/" + (props?.params?.page?.join("/") || ""),
+        urlPath: "/" + (params?.page?.join("/") || ""),
       },
     })
     // Convert the result to a promise
