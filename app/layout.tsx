@@ -1,8 +1,7 @@
+import './globals.css';
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
-import Navigation from './components/Navigation';
-import Footer from './components/Footer';
+import { RootLayoutClient } from './components/RootLayoutClient';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -10,8 +9,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "TIE Project - Building a $1B SaaS",
-  description: "Follow the journey of building a $1B SaaS company with AI",
+  title: "Tie.ceo Dashboard",
+  description: "Dashboard for Tie.ceo",
 };
 
 export default function RootLayout({
@@ -20,11 +19,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.className}>
-      <body>
-        <Navigation />
-        {children}
-        <Footer />
+    <html lang="en" className={inter.className} suppressHydrationWarning>
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        />
+      </head>
+      <body suppressHydrationWarning={true}>
+        <RootLayoutClient>
+          {children}
+        </RootLayoutClient>
       </body>
     </html>
   );

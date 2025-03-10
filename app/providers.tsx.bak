@@ -1,0 +1,28 @@
+'use client'
+
+// Only import what we need
+import { ChakraProvider, defaultSystem } from '@chakra-ui/react'
+import { builder } from '@builder.io/react'
+import React from 'react'
+
+// Import Builder.io registration
+import './register-builder'
+
+// Remove unused import
+      }
+    }
+  }
+})
+
+// Ensure Builder.io is initialized on client-side only
+if (typeof window !== 'undefined') {
+  builder.init(process.env.NEXT_PUBLIC_BUILDER_API_KEY || '')
+}
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <ChakraProvider value={defaultSystem}>
+      {children}
+    </ChakraProvider>
+  )
+} 

@@ -1,53 +1,123 @@
 # TIE CEO - $1B Solo SaaS Challenge
 
-## ⚠️ IMPORTANT: Project Guidelines ⚠️
+## Project Overview
 
-**BEFORE MAKING ANY CHANGES, read the [TIE-CEO-GUIDELINES.md](./TIE-CEO-GUIDELINES.md) document.**
+This project leverages Purity UI Dashboard, a modern and responsive dashboard template built with Chakra UI, to create a cutting-edge SaaS platform.
 
-This document contains critical information about:
-- The project's code stack and architecture
-- Critical rules and guidelines for development
-- Database connection details (Supabase, not Neon)
-- Environment variable management
-- Deployment workflow
+## 🚀 Technology Stack
 
-### Critical Rules Summary:
-1. Development server runs on port 3335
-2. Use Supabase PostgreSQL, NOT Neon DB
-3. ALWAYS ask for permission before pushing to GitHub
-4. Use db.js utility for database operations
+- **Frontend**: Next.js 14
+- **UI Framework**: 
+  - [Chakra UI](https://chakra-ui.com/)
+  - [Purity UI Dashboard](https://demos.creative-tim.com/purity-ui-dashboard/)
+- **Database**: Supabase PostgreSQL
+- **Styling**: Tailwind CSS
+- **Icons**: React Icons
 
-## Getting Started
+## 🔧 Installation and Setup
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js LTS (recommended version)
+- npm or yarn
+- Supabase account
+
+### Installation Steps
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/tie-ceo.git
+   cd tie-ceo
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+3. Set up environment variables:
+   - Copy `.env.example` to `.env.local`
+   - Fill in Supabase and other necessary credentials
+
+4. Run the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+## 🎨 Purity UI Dashboard Integration
+
+### Chakra UI Theme Customization
+
+We've extended the default Chakra UI theme to match our design requirements. Key customizations are in `app/theme/theme.js`:
+
+```typescript
+import { extendTheme } from "@chakra-ui/react"
+
+const theme = extendTheme({
+  colors: {
+    brand: {
+      900: "#1a365d",
+      800: "#153e75",
+      700: "#2a69ac",
+    },
+  },
+  // Additional theme customizations
+})
 ```
 
-Open [http://localhost:3335](http://localhost:3335) with your browser to see the result.
+### Key UI Components
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Sidebar**: Custom implementation in `app/components/dashboard/Sidebar.tsx`
+- **Layout**: Responsive design with `RootLayoutClient`
+- **Providers**: Wrapped with `ChakraProvider` for theme and styling consistency
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 💾 Database Integration
 
-## Learn More
+### Supabase Setup
 
-To learn more about Next.js, take a look at the following resources:
+- **ORM/Query Tool**: Custom `db.js` utility for database operations
+- **Connection**: Managed through Supabase PostgreSQL
+- **Authentication**: Supabase Auth (coming soon)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Database Utility
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The `db.js` utility provides a clean, abstracted way to interact with the database:
 
-## Deploy on Vercel
+```typescript
+// Example database operation
+import { db } from './utils/db'
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+async function getUserData() {
+  const { data, error } = await db
+    .from('users')
+    .select('*')
+}
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🚧 Development Guidelines
+
+1. Always use the development server on port 3335
+2. Commit and push changes only after team review
+3. Keep environment variables secure and never commit sensitive information
+4. Follow Chakra UI and Purity UI design principles
+
+## 📚 Learning Resources
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Chakra UI Documentation](https://chakra-ui.com/docs)
+- [Purity UI Dashboard Docs](https://demos.creative-tim.com/docs-purity-ui-dashboard/)
+- [Supabase Documentation](https://supabase.com/docs)
+
+## 🤝 Contributing
+
+Please read `TIE-CEO-GUIDELINES.md` before contributing to the project.
+
+## 📝 License
+
+[Your License Here]
+
+Made with ❤️ by Tie.ceo Team

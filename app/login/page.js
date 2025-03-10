@@ -14,7 +14,7 @@ export default function LoginPage() {
     setError('');
 
     // Simple hardcoded check - replace with real auth later
-    if (username === 'admin' && password === 'password') {
+    if (username === 'admin' && password === 'tie') {
       // Set a simple token in localStorage
       localStorage.setItem('adminToken', 'true');
       router.push('/updates');
