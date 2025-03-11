@@ -50,13 +50,12 @@ export function Sidebar() {
         justifyContent="flex-start" 
         mb="8"
       >
-        <Icon as={FaHome} boxSize="6" mr="3" color="gray.700" />
         <Heading 
           size="md" 
           color="gray.800"
           fontWeight="bold"
         >
-          PURITY UI DASHBOARD
+          Tie.Ceo
         </Heading>
       </Flex>
 
@@ -117,7 +116,7 @@ export function Sidebar() {
           <Icon as={FaQuestionCircle} color="teal.400" boxSize="5" />
         </Flex>
         <Heading size="sm" mb="1">Need help?</Heading>
-        <Text fontSize="sm" mb="4">Please check our docs</Text>
+        <Text fontSize="sm" mb="4">Me Too 🤣</Text>
         <Button
           bg="white"
           color="black"
@@ -126,7 +125,7 @@ export function Sidebar() {
           borderRadius="lg"
           fontWeight="bold"
         >
-          DOCUMENTATION
+          Follow The Journey
         </Button>
       </Box>
     </Box>
