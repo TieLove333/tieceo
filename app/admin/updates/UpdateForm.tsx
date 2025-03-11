@@ -290,7 +290,7 @@ export default function UpdateForm({
                 onChange={(e) => setCategory(e.target.value)}
               >
                 <option value="general">General</option>
-                <option value="product">Product</option>
+                <option value="development">Development</option>
                 <option value="milestone">Milestone</option>
                 <option value="learning">Learning</option>
               </Select>
