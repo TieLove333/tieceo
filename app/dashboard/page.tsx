@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { StatsCard } from '../components/dashboard/StatsCard';
+import useStripeDashboardMetrics from '../hooks/useStripeDashboardMetrics';
 import {
   Box,
   Flex,
@@ -24,10 +25,14 @@ import {
   StatHelpText,
   StatArrow,
   Divider,
+  Spinner,
+  Center,
 } from '@chakra-ui/react';
 import { FiSearch, FiSettings } from 'react-icons/fi';
 
 export default function DashboardScreen() {
+  const { stats, isLoading, error } = useStripeDashboardMetrics();
+
   return (
     <Box px="6" py="6" maxW="1400px" mx="auto">
       {/* Dashboard Header */}
@@ -72,45 +77,88 @@ export default function DashboardScreen() {
 
       {/* Stats Cards */}
       <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing="6" mb="8">
-        <StatsCard
-          title="Today's Money"
-          value="$53,000"
-          change="+55%"
-          changeType="positive"
-          icon="https://cdn.builder.io/api/v1/image/assets/e63775f9de4343d8b56711d7431bf688/1caf4309851a0b56d049680bdc81be931d56e3dca647502f336a37db7d0958e6"
-        />
-        <StatsCard
-          title="Today's Users"
-          value="2,300"
-          change="+5%"
-          changeType="positive"
-          icon="https://cdn.builder.io/api/v1/image/assets/e63775f9de4343d8b56711d7431bf688/8cfd6c6960f0f165603a6d252024f101ff8c38db66be60e10436907aa7315cf5"
-        />
-        <StatsCard
-          title="New Clients"
-          value="+3,052"
-          change="-14%"
-          changeType="negative"
-          icon="https://cdn.builder.io/api/v1/image/assets/e63775f9de4343d8b56711d7431bf688/54a8cd633b9237f9dbd4a34c8c25180887800ccdaa02149c03fe9eb88dce3882"
-        />
-        <StatsCard
-          title="Total Sales"
-          value="$173,000"
-          change="+8%"
-          changeType="positive"
-          icon="https://cdn.builder.io/api/v1/image/assets/e63775f9de4343d8b56711d7431bf688/6c4a1e94de0ca4233b8b72d47ce4a90e2f705f43fbaa395777d18279ee229480"
-        />
+        {isLoading ? (
+          <Center gridColumn="span 4" py="10">
+            <Spinner size="xl" color="teal.500" />
+          </Center>
+        ) : error ? (
+          <Center gridColumn="span 4" py="10">
+            <Text color="red.500">Error loading stats: {error}</Text>
+          </Center>
+        ) : stats ? (
+          <>
+            <StatsCard
+              title="ARR"
+              value={stats.arr.value.toString()}
+              change={`+${stats.arr.change}%`}
+              changeType="positive"
+              icon="https://cdn.builder.io/api/v1/image/assets/e63775f9de4343d8b56711d7431bf688/1caf4309851a0b56d049680bdc81be931d56e3dca647502f336a37db7d0958e6"
+            />
+            <StatsCard
+              title="MRR"
+              value={stats.mrr.value.toString()}
+              change={`+${stats.mrr.change}%`}
+              changeType="positive"
+              icon="https://cdn.builder.io/api/v1/image/assets/e63775f9de4343d8b56711d7431bf688/1caf4309851a0b56d049680bdc81be931d56e3dca647502f336a37db7d0958e6"
+            />
+            <StatsCard
+              title="Users"
+              value={stats.users.value.toString()}
+              change={`+${stats.users.change}%`}
+              changeType="positive"
+              icon="https://cdn.builder.io/api/v1/image/assets/e63775f9de4343d8b56711d7431bf688/8cfd6c6960f0f165603a6d252024f101ff8c38db66be60e10436907aa7315cf5"
+            />
+            <StatsCard
+              title="Total Sales"
+              value={stats.sales.value.toString()}
+              change={`+${stats.sales.change}%`}
+              changeType="positive"
+              icon="https://cdn.builder.io/api/v1/image/assets/e63775f9de4343d8b56711d7431bf688/6c4a1e94de0ca4233b8b72d47ce4a90e2f705f43fbaa395777d18279ee229480"
+            />
+          </>
+        ) : (
+          <>
+            <StatsCard
+              title="Today's Money"
+              value="$53,000"
+              change="+55%"
+              changeType="positive"
+              icon="https://cdn.builder.io/api/v1/image/assets/e63775f9de4343d8b56711d7431bf688/1caf4309851a0b56d049680bdc81be931d56e3dca647502f336a37db7d0958e6"
+            />
+            <StatsCard
+              title="Today's Users"
+              value="2,300"
+              change="+5%"
+              changeType="positive"
+              icon="https://cdn.builder.io/api/v1/image/assets/e63775f9de4343d8b56711d7431bf688/8cfd6c6960f0f165603a6d252024f101ff8c38db66be60e10436907aa7315cf5"
+            />
+            <StatsCard
+              title="New Clients"
+              value="+3,052"
+              change="-14%"
+              changeType="negative"
+              icon="https://cdn.builder.io/api/v1/image/assets/e63775f9de4343d8b56711d7431bf688/54a8cd633b9237f9dbd4a34c8c25180887800ccdaa02149c03fe9eb88dce3882"
+            />
+            <StatsCard
+              title="Total Sales"
+              value="$173,000"
+              change="+8%"
+              changeType="positive"
+              icon="https://cdn.builder.io/api/v1/image/assets/e63775f9de4343d8b56711d7431bf688/6c4a1e94de0ca4233b8b72d47ce4a90e2f705f43fbaa395777d18279ee229480"
+            />
+          </>
+        )}
       </SimpleGrid>
 
       {/* Info Cards */}
       <Grid templateColumns={{ base: "1fr", lg: "3fr 2fr" }} gap="6" mb="8">
         <GridItem as={Box} p="6" bg="white" borderRadius="2xl" boxShadow="sm">
           <Stack spacing="3">
-            <Text fontSize="xs" fontWeight="bold" color="gray.400">Built by developers</Text>
-            <Heading size="md" color="gray.700">Purity UI Dashboard</Heading>
+            <Text fontSize="xs" fontWeight="bold" color="gray.400">Building Mode</Text>
+            <Heading size="md" color="gray.700">Building In Public</Heading>
             <Text fontSize="sm" color="gray.400">
-              From colors, cards, typography to complex elements,<br />
-              you will find the full documentation.
+              I'm currently building Capsole.io & SoloQuest.fun<br />
+              and sharing all the progress along the way. It's more fun that way!
             </Text>
             <Flex 
               mt={{ base: "10", md: "36" }} 
@@ -142,10 +190,10 @@ export default function DashboardScreen() {
             objectFit="cover"
           />
           <Box position="relative" zIndex="1" p="8" color="white" fontWeight="bold">
-            <Heading size="md">Work with the Rockets</Heading>
+            <Heading size="md">Build Your Moonshot</Heading>
             <Text mt="5" fontSize="sm">
-              Wealth creation is an evolutionarily recent positive-sum game.<br />
-              It is all about who take the opportunity first.
+              Discover, Innovate & Accelerate your startup and moonshot.<br />
+              The Capsole moonshot platform launches soon!
             </Text>
             <Flex 
               mt={{ base: "10", md: "32" }} 
@@ -268,7 +316,7 @@ export default function DashboardScreen() {
       {/* Footer */}
       <Flex justifyContent="space-between" alignItems="center" fontSize="xs" color="gray.400" mt="12" pb="8">
         <Flex gap="1">
-          © 2024, Made with ❤️ by{" "}
+          2024, Made with by{" "}
           <Link href="https://x.com/tielove333" color="teal.500" isExternal>
             Tie
           </Link>
@@ -281,4 +329,4 @@ export default function DashboardScreen() {
       </Flex>
     </Box>
   );
-} 
+}
