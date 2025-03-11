@@ -239,26 +239,25 @@ export default function UpdateForm({
   const handleEmbed = () => {
     if (!embedUrl) return;
     
-    let embedCode = '';
-    
+    // Extract the Twitter URL - support both twitter.com and x.com domains
     if (embedUrl.includes('twitter.com') || embedUrl.includes('x.com')) {
-      // Note: Make sure to add <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-      // to the main layout or page where tweets will be rendered
-      embedCode = `<blockquote class="twitter-tweet">
+      // Create the Twitter embed code with the simplified format
+      const embedCode = `<blockquote class="twitter-tweet">
   <a href="${embedUrl}"></a>
 </blockquote>
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>`;
-    } else if (embedUrl.includes('youtube.com') || embedUrl.includes('youtu.be')) {
-      const videoId = embedUrl.includes('youtu.be') 
-        ? embedUrl.split('/').pop() 
-        : new URLSearchParams(new URL(embedUrl).search).get('v');
-      embedCode = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-    }
-    
-    if (embedCode) {
+      
       insertAtCursor('\n' + embedCode + '\n');
       setEmbedUrl('');
       onClose();
+    } else {
+      toast({
+        title: "Invalid URL",
+        description: "Please enter a valid Twitter/X URL",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
   
@@ -354,10 +353,10 @@ export default function UpdateForm({
                 />
               </Tooltip>
               <Divider orientation="vertical" />
-              <Tooltip label="Embed Tweet/Video">
+              <Tooltip label="Embed Tweet">
                 <IconButton
-                  aria-label="Embed"
-                  icon={<HStack spacing={0}><BiLogoTwitter /><BiVideo /></HStack>}
+                  aria-label="Embed Tweet"
+                  icon={<BiLogoTwitter />}
                   onClick={onOpen}
                 />
               </Tooltip>
@@ -396,20 +395,23 @@ export default function UpdateForm({
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Embed Content</ModalHeader>
+          <ModalHeader>Embed Twitter Post</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <VStack spacing={4}>
               <FormControl>
-                <FormLabel>URL</FormLabel>
+                <FormLabel>Twitter URL</FormLabel>
                 <Input
                   value={embedUrl}
                   onChange={(e) => setEmbedUrl(e.target.value)}
-                  placeholder="Paste Twitter/X or YouTube URL"
+                  placeholder="Paste Twitter/X post URL"
                 />
+                <Box fontSize="sm" color="gray.500" mt={2}>
+                  Example: https://twitter.com/tielove333/status/1895697562553995736
+                </Box>
               </FormControl>
-              <Button onClick={handleEmbed} colorScheme="blue" width="full">
-                Insert Embed
+              <Button onClick={handleEmbed} colorScheme="blue" width="full" leftIcon={<BiLogoTwitter />}>
+                Insert Tweet
               </Button>
             </VStack>
           </ModalBody>
