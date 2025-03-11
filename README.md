@@ -9,7 +9,7 @@ This project leverages Purity UI Dashboard, a modern and responsive dashboard te
 - **Frontend**: Next.js 14
 - **UI Framework**: 
   - [Chakra UI](https://chakra-ui.com/)
-  - [Purity UI Dashboard](https://demos.creative-tim.com/purity-ui-dashboard/)
+  - [Purity UI Dashboard](https://demos.creative-tim.com/purity-ui-dashboard/ | https://demos.creative-tim.com/docs-purity-ui-dashboard/docs/getting-started)
 - **Database**: Supabase PostgreSQL
 - **Styling**: Tailwind CSS
 - **Icons**: React Icons

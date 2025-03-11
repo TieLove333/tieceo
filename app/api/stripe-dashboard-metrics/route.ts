@@ -46,7 +46,8 @@ export async function GET() {
       const subscriptions = await stripe.subscriptions.list({
         status: 'active',
         created: { gte: startDate },
-        limit: 100
+        limit: 100,
+        expand: ['data.items.data.price']
       });
 
       // Fetch charges created after Jan 1st, 2025
@@ -62,8 +63,18 @@ export async function GET() {
       });
 
       // Calculate MRR (Monthly Recurring Revenue)
-      const mrr = subscriptions.data.reduce((total, sub) => {
-        return total + ((sub.plan?.amount || 0) / 100);
+      const mrr = subscriptions.data.reduce((total, subscription) => {
+        // Get all items in the subscription
+        const items = subscription.items?.data || [];
+        
+        // Sum up the prices of all items
+        const subscriptionTotal = items.reduce((itemTotal, item) => {
+          const unitAmount = item.price?.unit_amount || 0;
+          const quantity = item.quantity || 1;
+          return itemTotal + (unitAmount * quantity / 100);
+        }, 0);
+        
+        return total + subscriptionTotal;
       }, 0);
 
       // Calculate ARR (Annual Recurring Revenue)
